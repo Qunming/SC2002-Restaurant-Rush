@@ -1,85 +1,169 @@
+
 package customer;
 
+import java.util.List;
 import menu.Menu;
 import menu.MenuItem;
 import order.Order;
 import restaurant.Table;
 
-/**
- * Member 2: Concrete customer for Stage 1.
- * Every Stage 1 customer has the SAME satisfaction rule.
- */
 public class Customer {
+
+    // Constants
     private static final int STARTING_SATISFACTION = 100;
     private static final int WAITING_SATISFACTION_LOSS = 8;
 
+    // Customer information
     private final int id;
     private int satisfaction = STARTING_SATISFACTION;
     private CustomerStatus status = CustomerStatus.WAITING;
+
+    // Customer's assigned table and order
     private Table assignedTable;
     private Order order;
+
+    // Track when the customer was served and finished eating
     private int servedTurn = -1;
     private int readyToPayTurn = -1;
 
+    // Constructor
     public Customer(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Customer ID must be positive");
         }
+
         this.id = id;
     }
 
-    public int getId() { return id; }
-    public int getSatisfaction() { return satisfaction; }
-    public CustomerStatus getStatus() { return status; }
-    public Table getTable() { return assignedTable; }
-    public Order getOrder() { return order; }
-    public int getServedTurn() { return servedTurn; }
-    public int getReadyToPayTurn() { return readyToPayTurn; }
+    // Getters
+    public int getId() {
+        return id;
+    }
 
+    public int getSatisfaction() {
+        return satisfaction;
+    }
+
+    public CustomerStatus getStatus() {
+        return status;
+    }
+
+    public Table getTable() {
+        return assignedTable;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public int getServedTurn() {
+        return servedTurn;
+    }
+
+    public int getReadyToPayTurn() {
+        return readyToPayTurn;
+    }
+
+    // Customer selects food automatically
     public MenuItem chooseMenuItem(Menu menu) {
-        // TODO M2: Use a documented ID-based rule.
-        // Menu order is SALAD, BURGER, PASTA; same ID -> same food.
-        throw new UnsupportedOperationException("TODO M2: choose menu item");
+
+        if (menu == null) {
+            throw new IllegalArgumentException(
+                "Menu cannot be null"
+            );
+        }
+
+        List<MenuItem> availableMenuItems = menu.getItems();    // Create a list of available menu items
+
+        if (availableMenuItems.isEmpty()) {
+            throw new IllegalArgumentException("Menu is empty");
+        }
+
+        int selectedIndex = (id - 1) % availableMenuItems.size();
+
+        MenuItem selectedDish = availableMenuItems.get(selectedIndex);
+
+        return selectedDish;
     }
 
+    // Change customer status from WAITING to SEATED
     public void seatAt(Table table) {
-        // TODO M2: WAITING -> SEATED; save assigned table.
-        throw new UnsupportedOperationException("TODO M2: seat customer");
+
+        if (status != CustomerStatus.WAITING || table == null) {
+            throw new IllegalArgumentException("Customer cannot be seated");
+        }
+
+        assignedTable = table;
+        status = CustomerStatus.SEATED;
     }
 
+    // Change customer status from SEATED to ORDERED
     public void assignOrder(Order newOrder) {
-        // TODO M2: SEATED -> ORDERED; reject an order for a different customer.
-        throw new UnsupportedOperationException("TODO M2: assign order");
+
+        if (status != CustomerStatus.SEATED         //If customer not seated
+                || newOrder == null                 // Customer has yet to order
+                || newOrder.getCustomer() != this)  //checks whether the order belongs to the customer
+                {
+                    throw new IllegalArgumentException("Cannot assign order to customer");
+        }
+
+        order = newOrder;
+        status = CustomerStatus.ORDERED;
     }
 
+    // Mark customer as served
     public void markServed(int currentTurn) {
-        // TODO M2: ORDERED -> SERVED; save served turn.
-        throw new UnsupportedOperationException("TODO M2: mark served");
+
+        if (status != CustomerStatus.ORDERED || currentTurn < 1) {
+            throw new IllegalArgumentException("Customer cannot be served");
+        }
+
+        status = CustomerStatus.SERVED;
+        servedTurn = currentTurn;
     }
 
+    // Customer finishes eating on a later turn
     public void markReadyToPay(int currentTurn) {
-        // TODO M2: SERVED -> READY_TO_PAY only if currentTurn > servedTurn.
-        throw new UnsupportedOperationException("TODO M2: mark ready to pay");
+
+        if (status != CustomerStatus.SERVED || currentTurn <= servedTurn) {
+            throw new IllegalArgumentException("Customer has not finished eating");
+        }
+
+        status = CustomerStatus.READY_TO_PAY;
+        readyToPayTurn = currentTurn;
     }
 
+    // Mark customer as paid
     public void markPaid() {
-        // TODO M2: READY_TO_PAY -> PAID.
-        throw new UnsupportedOperationException("TODO M2: mark paid");
+
+        if (status != CustomerStatus.READY_TO_PAY) {
+            throw new IllegalArgumentException("Customer is not ready to pay");
+        }
+
+        status = CustomerStatus.PAID;
     }
 
+    // Customer abandons the restaurant
     public void abandon() {
-        // TODO M2: Unserved customer, satisfaction == 0 -> ABANDONED.
-        // Do not release the table or cancel orders here.
-        throw new UnsupportedOperationException("TODO M2: abandon customer");
+
+        if (!isAwaitingService() || satisfaction != 0) {
+            throw new IllegalArgumentException("Customer cannot abandon");
+        }
+
+        status = CustomerStatus.ABANDONED;
     }
 
+    // Decrease satisfaction while customer is unserved
     public void decreaseWaitingSatisfaction() {
-        // TODO M2: Only WAITING/SEATED/ORDERED lose 8, min 0.
-        // Use WAITING_SATISFACTION_LOSS, not a magic number.
-        throw new UnsupportedOperationException("TODO M2: decrease satisfaction");
+
+        if (isAwaitingService()) {
+            satisfaction = Math.max(0,satisfaction - WAITING_SATISFACTION_LOSS);    // ENsures satisfaction level is >= 0
+        }
     }
 
+    // Check whether the customer is still awaiting service
     private boolean isAwaitingService() {
+
         return status == CustomerStatus.WAITING
                 || status == CustomerStatus.SEATED
                 || status == CustomerStatus.ORDERED;
