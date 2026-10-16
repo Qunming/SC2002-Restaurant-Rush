@@ -1,34 +1,54 @@
+
 package restaurant;
 
 import customer.Customer;
 
-/** Member 2: One table knows its number and occupant. */
 public class Table {
+
+    // Table information
     private final int tableNumber;
     private Customer occupant;
 
+    // Constructor
     public Table(int tableNumber) {
+
         if (tableNumber <= 0) {
             throw new IllegalArgumentException("Table number must be positive");
         }
+
         this.tableNumber = tableNumber;
     }
 
-    public int getNumber() { return tableNumber; }
-    public Customer getOccupant() { return occupant; }
+    // Getters
+    public int getNumber() {
+        return tableNumber;
+    }
 
+    public Customer getOccupant() {
+        return occupant;
+    }
+
+    // Check if the table is available
     public boolean isAvailable() {
-        // TODO M2: Available if no occupant.
-        throw new UnsupportedOperationException("TODO M2: table availability");
+        return occupant == null;
     }
 
+    // Assign a customer to this table
     public void occupy(Customer customer) {
-        // TODO M2: Reject null customer or occupied table.
-        throw new UnsupportedOperationException("TODO M2: occupy table");
+
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer cannot be null");
+        }
+
+        if (!isAvailable()) {
+            throw new IllegalStateException("Table " + tableNumber + " is already occupied");
+        }
+
+        occupant = customer;
     }
 
+    // Remove the customer from this table
     public void release() {
-        // TODO M2: Set occupant to null. Only TableManager decides WHEN.
-        throw new UnsupportedOperationException("TODO M2: release table");
+        occupant = null;
     }
 }
