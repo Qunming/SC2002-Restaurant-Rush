@@ -85,7 +85,8 @@ public class GameController {
     }
 
     public boolean hasWon() {
-        // TODO M1: >= 4 PAID, >= 4500 cents, avg satisfaction >= 60.
-        throw new UnsupportedOperationException("TODO M1: victory conditions");
+        return state.getPaidCustomerCount() >= GameConfig.REQUIRED_PAID_CUSTOMERS &&
+           state.getRevenueCents() >= GameConfig.REQUIRED_REVENUE_CENTS &&
+           state.getAveragePaidSatisfaction() >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
     }
 }
