@@ -1,51 +1,160 @@
+
 package customer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** Member 2: Manages ALL customers and their queue/eating rules. */
 public class CustomerManager {
+
     private final List<Customer> customers = new ArrayList<>();
 
+    // Register a new customer
     public void addCustomer(Customer customer) {
-        // TODO M2: Reject null and duplicate IDs; preserve arrival order.
-        throw new UnsupportedOperationException("TODO M2: add customer");
+
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer cannot be null");
+        }
+
+        if (getCustomerById(customer.getId()) != null) {
+            throw new IllegalArgumentException("Customer ID already exists");
+        }
+
+        customers.add(customer);
     }
 
+    // Find a customer by ID
     public Customer getCustomerById(int customerId) {
-        // TODO M2: Return matching Customer; return null if ID is unknown.
-        throw new UnsupportedOperationException("TODO M2: find customer");
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+
+            if (customer.getId() == customerId) {
+                return customer;
+            }
+        }
+
+        return null;
     }
 
+    // Get list of customers waiting for a table
     public List<Customer> getWaitingCustomers() {
-        // TODO M2: WAITING customers, in arrival order; no modifiable internal list.
-        throw new UnsupportedOperationException("TODO M2: waiting customers");
+
+        List<Customer> waitingCustomers = new ArrayList<>();
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+
+            if (customer.getStatus() == CustomerStatus.WAITING) {
+                waitingCustomers.add(customer);
+            }
+        }
+
+        return waitingCustomers;
     }
 
+    // Get list of customers who have not paid or abandoned
     public List<Customer> getActiveCustomers() {
-        // TODO M2: Exclude PAID and ABANDONED customers.
-        throw new UnsupportedOperationException("TODO M2: active customers");
+
+        List<Customer> activeCustomers = new ArrayList<>();
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+            CustomerStatus status = customer.getStatus();
+
+            if (status != CustomerStatus.PAID && status != CustomerStatus.ABANDONED) {
+
+                activeCustomers.add(customer);
+            }
+        }
+
+        return activeCustomers;
     }
 
+    // Get list of customers who have paid
     public List<Customer> getPaidCustomers() {
-        // TODO M2: PAID customers only.
-        throw new UnsupportedOperationException("TODO M2: paid customers");
+
+        List<Customer> paidCustomers = new ArrayList<>();
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+
+            if (customer.getStatus() == CustomerStatus.PAID) {
+                paidCustomers.add(customer);
+            }
+        }
+
+        return paidCustomers;
     }
 
+    // Find the oldest customer eligible for payment
     public Customer getOldestReadyToPayCustomer(int currentTurn) {
-        // TODO M2: Earliest readyToPayTurn < currentTurn; tied -> earlier arrival.
-        // Return null if no customer is eligible.
-        throw new UnsupportedOperationException("TODO M2: eligible payment customer");
+
+        Customer oldestEligibleCustomer = null;
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+
+            //Customer can only make payment at least 1 turn after his ReadyToPayTurn
+            if (customer.getStatus() != CustomerStatus.READY_TO_PAY || customer.getReadyToPayTurn() >= currentTurn) {
+                continue;
+            }
+
+            if (oldestEligibleCustomer == null || customer.getReadyToPayTurn() < oldestEligibleCustomer.getReadyToPayTurn()) {
+
+                oldestEligibleCustomer = customer;
+            }
+        }
+
+        return oldestEligibleCustomer;
     }
 
+    // Update customers who have finished eating
     public void advanceEating(int currentTurn) {
-        // TODO M2: SERVED in an earlier turn -> READY_TO_PAY now.
-        throw new UnsupportedOperationException("TODO M2: advance eating");
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+
+            if (customer.getStatus() == CustomerStatus.SERVED && customer.getServedTurn() < currentTurn) {
+
+                customer.markReadyToPay(currentTurn);
+            }
+        }
     }
 
+    // Reduce satisfaction and handle abandonment
     public List<Customer> applyEndTurnSatisfactionLoss() {
-        // TODO M2: Apply waiting penalty; call abandon() at zero.
-        // Return ONLY newly abandoned customers for controller cleanup.
-        throw new UnsupportedOperationException("TODO M2: end-of-turn satisfaction");
+
+        List<Customer> newlyAbandonedCustomers = new ArrayList<>();
+
+        for (int i = 0; i < customers.size(); i++) {
+
+            Customer customer = customers.get(i);
+            CustomerStatus status = customer.getStatus();
+
+            boolean isUnserved =
+                    status == CustomerStatus.WAITING
+                    || status == CustomerStatus.SEATED
+                    || status == CustomerStatus.ORDERED;
+
+            if (!isUnserved) {      //If customer has been Served
+                continue;
+            }
+
+            customer.decreaseWaitingSatisfaction();
+
+            if (customer.getSatisfaction() == 0) {
+
+                customer.abandon();
+                newlyAbandonedCustomers.add(customer);
+            }
+        }
+
+        return newlyAbandonedCustomers;
     }
 }
