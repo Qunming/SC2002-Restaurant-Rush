@@ -25,7 +25,7 @@ public class ConsoleUI {
         System.out.println("Invalid choice: " + errorMessage);
     }
 
-    public void showFinalResult(GameState gameState, boolean victory) {
+    public void showFinalResult(GameState gameState, GameController.haswon()) {
         // TODO M1: Print end of turn 18 result, VICTORY or DEFEAT.
         throw new UnsupportedOperationException("TODO M1: final results");
     }
