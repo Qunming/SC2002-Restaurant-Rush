@@ -22,9 +22,9 @@ public class InputHandler {
     }
 
     public int readWaiterChoice() {
-        System.out.println("1. Seat waiting customer");
-        System.out.println("2. Take order from seated customer");
-        System.out.println("3. Serve ready food to customer");
+        System.out.println("1. Seat one queued customer at a free table");
+        System.out.println("2. Take one seated customer’s order");
+        System.out.println("3. Serve one READY order");
         System.out.println("4. Wait");
         System.out.print("Enter your choice (1-4): ");
 
@@ -40,8 +40,8 @@ public class InputHandler {
 
     public int readChefChoice() {
         // TODO M1: 1 Prepare Order, 2 Wait.
-        System.out.println("1. Cook / prepare pending order");
-        System.out.println("2. Do nothing / End turn");
+        System.out.println("1. One order to advance by one preparation unit");
+        System.out.println("2. Wait");
         System.out.print("Enter your choice (1-2): ");
 
         while (!scanner.hasNextInt()) {
