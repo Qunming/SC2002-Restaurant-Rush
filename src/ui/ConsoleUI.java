@@ -29,6 +29,7 @@ public class ConsoleUI {
     }
 
     public void showEndOfTurn(GameState gameState) {
+        System.out.println("END OF TURN");
         System.out.println("Turns used: " + getCurrentTurn());
         System.out.println("Revenue: $" + getRevenueCents());
         {System.out.println("Average satisfaction of paid customers :" + getAveragePaidSatisfaction());}
