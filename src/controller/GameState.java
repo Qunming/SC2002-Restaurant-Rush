@@ -40,8 +40,10 @@ public class GameState {
     public int getAbandonedCustomerCount() { return abandonedCustomerCount; }
 
     public double getAveragePaidSatisfaction() {
-        // TODO M1: Return NaN if nobody paid; otherwise payment-time average.
-        throw new UnsupportedOperationException("TODO M1: average paid satisfaction");
+        if (paidCustomerCount == 0) {return 0;}
+        //collate totalPaidSatisfaction
+        
+        return totalPaidSatisfaction/paidCustomerCount;
     }
 
     public void advanceTurn() {
@@ -54,12 +56,10 @@ public class GameState {
     }
 
     public void recordServing() {
-        // TODO M1: Increment successful serving count.
-        throw new UnsupportedOperationException("TODO M1: record serving");
+        servedCustomerCount++;
     }
 
     public void recordAbandonment() {
-        // TODO M1: Increment abandoned customer count.
-        throw new UnsupportedOperationException("TODO M1: record abandonment");
+        abandonedCustomerCount++;
     }
 }
