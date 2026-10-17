@@ -51,8 +51,21 @@ public class GameState {
     }
 
     public void recordPayment(Customer customer, Order order) {
-        // TODO M1: Add only successfully collected bill, exactly once.
-        throw new UnsupportedOperationException("TODO M1: record payment");
+        if (customer == null || order == null) {
+            throw new IllegalArgumentException("Customer and order cannot be null");
+        }
+
+        // 1. Transition the customer's status to PAID (this triggers Customer's internal validation)
+        customer.markPaid();
+
+        // 2. Lock in their final satisfaction score and add it to your total
+        totalPaidSatisfaction += customer.getSatisfaction();
+
+        // 3. Increment your paid customer count
+        paidCustomerCount++;
+
+        // 4. Add the order's bill amount to your total revenue
+        revenueCents += order.getFinalPriceCents();
     }
 
     public void recordServing() {
