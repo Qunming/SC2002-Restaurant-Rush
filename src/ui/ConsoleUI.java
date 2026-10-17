@@ -7,12 +7,24 @@ import staff.Waiter;
 /** Member 1: Displays information. The UI never owns game rules. */
 public class ConsoleUI {
     public void showStartOfTurn(GameState gameState, Waiter waiter, Chef chef) {
+        System.out.println("START OF TURN");
         System.out.println("Current turn: " + getCurrentTurn());
         System.out.println("Revenue: $" + getRevenueCents());
         System.out.println("Average satisfaction of paid customers: " + getAveragePaidSatisfaction());
         System.out.println("Waiting queue: " + getWaitingCustomers);
-        System.out.println("Occupied Tables: " + OccupiedTables);
-        System.out.println("Order status: " + OrderStatus);
+        System.out.println("Occupied Tables: " + OccupiedTables); //I NEED occupiedtable method*******
+        List<Order> allOrders = gameState.getOrderManager().getOrders();
+    
+        System.out.println("Active Orders:");
+        if (allOrders.isEmpty()) {
+            System.out.println("  (None)");
+        } else {
+            for (Order order : allOrders) {
+                // Printing ID, Table Number, and the OrderStatus enum
+                System.out.println("  - Order #" + order.getId() + 
+                                   " | Status: " + order.getStatus());
+            }
+        }
         System.out.println("Available staff tasks: " + AvailableStaffTasks);
     }
 
