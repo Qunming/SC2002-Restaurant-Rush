@@ -35,7 +35,7 @@ public class InputHandler {
 
         int choice = scanner.nextInt();
         scanner.nextLine(); 
-        return waiterChoice;
+        return choice;
     }
 
     public int readChefChoice() {
@@ -51,7 +51,7 @@ public class InputHandler {
 
         int choice = scanner.nextInt();
         scanner.nextLine(); 
-        return chefChoice;
+        return choice;
     }
 
     public int readCustomerId() {
