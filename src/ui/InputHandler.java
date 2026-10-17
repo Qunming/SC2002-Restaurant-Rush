@@ -11,18 +11,47 @@ public class InputHandler {
     }
 
     public int readInt(String prompt) {
-        // TODO M1: Re-prompt on non-integer input without crashing.
-        throw new UnsupportedOperationException("TODO M1: read integer");
+        System.out.print(prompt);
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. " + prompt);
+            scanner.next(); // Clear the invalid input
+        }
+        int value = scanner.nextInt();
+        scanner.nextLine(); // Consume leftover newline
+        return value;
     }
 
     public int readWaiterChoice() {
-        // TODO M1: 1 Seat, 2 Take Order, 3 Serve, 4 Wait.
-        throw new UnsupportedOperationException("TODO M1: waiter menu");
+        System.out.println("1. Seat waiting customer");
+        System.out.println("2. Take order from seated customer");
+        System.out.println("3. Serve ready food to customer");
+        System.out.println("4. Wait");
+        System.out.print("Enter your choice (1-4): ");
+
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter a number between 1 and 4: ");
+            scanner.next(); // Clear the invalid input
+        }
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); 
+        return choice;
     }
 
     public int readChefChoice() {
         // TODO M1: 1 Prepare Order, 2 Wait.
-        throw new UnsupportedOperationException("TODO M1: chef menu");
+        System.out.println("1. Cook / prepare pending order");
+        System.out.println("2. Do nothing / End turn");
+        System.out.print("Enter your choice (1-2): ");
+
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter 1 or 2: ");
+            scanner.next(); // Clear the invalid input
+        }
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); 
+        return choice;
     }
 
     public int readCustomerId() {
