@@ -204,7 +204,8 @@ public class GameController {
         }
     
         // 4. Serve the order (updates order status to SERVED / hands it to the customer)
-        order.serve(); // Or manager handles the transition
+        int currentTurn = gameState.getCurrentTurn();
+        order.markServed(currentTurn);
     
         ui.showMessage("Successfully served Order #" + orderId + "!");
         return true; // Success! Breaks the while(true) loop
@@ -226,8 +227,9 @@ public class GameController {
             throw new IllegalArgumentException("Invalid Order ID or order cannot be cooked right now.");
         }
     
-        // 4. Advance the order's preparation (method name might vary depending on Member 3's Order class)
-        order.advancePreparation(); // Or orderManager.advanceOrder(order) depending on your team's design
+        // 4. Advance the order's preparation
+        int currentTurn = gameState.getCurrentTurn();
+        order.prepareOneUnit(currentTurn);
     
         ui.showMessage("Successfully progressed cooking for Order #" + orderId + "!");
         return true; // Success! Breaks the while(true) loop
