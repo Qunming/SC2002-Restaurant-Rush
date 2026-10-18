@@ -142,4 +142,94 @@ public class GameController {
            state.getRevenueCents() >= GameConfig.REQUIRED_REVENUE_CENTS &&
            state.getAveragePaidSatisfaction() >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
     }
+
+    private boolean seatCustomerAction() {
+        // 1. Read the customer ID from the player
+        int customerId = inputHandler.readCustomerId();
+    
+        // 2. Find the customer in the backend
+        Customer customer = gameState.getCustomerManager().getCustomerById(customerId);
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer #" + customerId + " does not exist.");
+        }
+    
+        // 3. Call TableManager's seatCustomer method directly
+        boolean seated = gameState.getTableManager().seatCustomer(customer);
+        
+        if (!seated) {
+            throw new IllegalStateException("Cannot seat customer. Either no tables are free or they are not waiting.");
+        }
+    
+        ui.showMessage("Successfully seated Customer #" + customerId);
+        return true; // Success! Breaks the while(true) loop
+    }
+
+    private boolean takeOrderAction() {
+        // 1. Ask the player for the customer ID using your InputHandler
+        int customerId = inputHandler.readCustomerId();
+    
+        // 2. Find the customer in the backend
+        Customer customer = gameState.getCustomerManager().getCustomerById(customerId);
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer #" + customerId + " does not exist.");
+        }
+    
+        // 3. Validate that the customer is actually seated (and ready to order)
+        if (customer.getStatus() != CustomerStatus.SEATED) {
+            throw new IllegalStateException("Customer #" + customerId + " is not seated and cannot place an order.");
+        }
+    
+        // 4. Tell OrderManager to create the order using the customer and the game's menu
+        // (Assuming gameState provides access to orderManager and menu)
+        gameState.getOrderManager().createOrder(customer, gameState.getMenu());
+    
+        ui.showMessage("Successfully took order for Customer #" + customerId + "!");
+        return true; // Success! Breaks the while(true) loop
+    }
+
+    private boolean serveOrderAction() {
+        // 1. Check if there are any ready orders available to serve
+        List<Order> readyOrders = gameState.getOrderManager().getReadyOrders();
+        if (readyOrders.isEmpty()) {
+            return false; // No ready orders, show error
+        }
+    
+        // 2. Read the Order ID from the player
+        int orderId = inputHandler.readOrderId();
+    
+        // 3. Find the order in the backend
+        Order order = gameState.getOrderManager().getOrderById(orderId);
+        if (order == null || !readyOrders.contains(order)) {
+            throw new IllegalArgumentException("Invalid Order ID or order is not ready to serve.");
+        }
+    
+        // 4. Serve the order (updates order status to SERVED / hands it to the customer)
+        order.serve(); // Or manager handles the transition
+    
+        ui.showMessage("Successfully served Order #" + orderId + "!");
+        return true; // Success! Breaks the while(true) loop
+}
+
+    private boolean cookOrderAction() {
+        // 1. Check if there are any cookable orders available first
+        List<Order> cookableOrders = gameState.getOrderManager().getCookableOrders();
+        if (cookableOrders.isEmpty()) {
+            return false; // No orders to cook, let the while(true) loop show an error
+        }
+    
+        // 2. Read the Order ID from the player using InputHandler
+        int orderId = inputHandler.readOrderId();
+    
+        // 3. Find the order in the backend
+        Order order = gameState.getOrderManager().getOrderById(orderId);
+        if (order == null || !cookableOrders.contains(order)) {
+            throw new IllegalArgumentException("Invalid Order ID or order cannot be cooked right now.");
+        }
+    
+        // 4. Advance the order's preparation (method name might vary depending on Member 3's Order class)
+        order.advancePreparation(); // Or orderManager.advanceOrder(order) depending on your team's design
+    
+        ui.showMessage("Successfully progressed cooking for Order #" + orderId + "!");
+        return true; // Success! Breaks the while(true) loop
+    }
 }
