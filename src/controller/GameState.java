@@ -41,9 +41,7 @@ public class GameState {
 
     public double getAveragePaidSatisfaction() {
         if (paidCustomerCount == 0) {return 0;}
-        //collate totalPaidSatisfaction
-        
-        return totalPaidSatisfaction/paidCustomerCount;
+        return (double) totalPaidSatisfaction/paidCustomerCount; //could be decimal or int
     }
 
     public void advanceTurn() {
@@ -55,9 +53,7 @@ public class GameState {
             throw new IllegalArgumentException("Customer and order cannot be null");
         }
 
-        // (this triggers Customer's internal validation)
         customer.markPaid();
-        
         totalPaidSatisfaction += customer.getSatisfaction();
         paidCustomerCount++;
         revenueCents += order.getFinalPriceCents();
