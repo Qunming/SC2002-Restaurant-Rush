@@ -1,66 +1,54 @@
+
 package ui;
 
 import java.util.Scanner;
 
-/** Member 1: Reads input only, never enforces restaurant business rules. */
+/** Reads player input. Game rules are checked by other classes. */
 public class InputHandler {
     private final Scanner scanner;
 
     public InputHandler(Scanner scanner) {
+        if (scanner == null) {
+            throw new IllegalArgumentException("Scanner cannot be null");
+        }
         this.scanner = scanner;
     }
 
+    /** Keep asking until the player enters a valid whole number. */
     public int readInt(String prompt) {
-        System.out.print(prompt);
-        while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. " + prompt);
-            scanner.next(); // Clear the invalid input
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a whole number.");
+            }
         }
-        int value = scanner.nextInt();
-        scanner.nextLine(); // Consume leftover newline
-        return value;
     }
 
     public int readWaiterChoice() {
-        System.out.println("1. Seat one queued customer at a free table");
-        System.out.println("2. Take one seated customer’s order");
-        System.out.println("3. Serve one READY order");
+        System.out.println("\nWaiter actions:");
+        System.out.println("1. Seat customer");
+        System.out.println("2. Take order");
+        System.out.println("3. Serve order");
         System.out.println("4. Wait");
-        System.out.print("Enter your choice (1-4): ");
-
-        while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. Please enter a number between 1 and 4: ");
-            scanner.next(); // Clear the invalid input
-        }
-
-        int choice = scanner.nextInt();
-        scanner.nextLine(); 
-        return choice;
+        return readInt("Choose a Waiter action (1-4): ");
     }
 
     public int readChefChoice() {
-        // TODO M1: 1 Prepare Order, 2 Wait.
-        System.out.println("1. One order to advance by one preparation unit");
+        System.out.println("\nChef actions:");
+        System.out.println("1. Prepare one unit of an order");
         System.out.println("2. Wait");
-        System.out.print("Enter your choice (1-2): ");
-
-        while (!scanner.hasNextInt()) {
-            System.out.print("Invalid input. Please enter 1 or 2: ");
-            scanner.next(); // Clear the invalid input
-        }
-
-        int choice = scanner.nextInt();
-        scanner.nextLine(); 
-        return choice;
+        return readInt("Choose a Chef action (1-2): ");
     }
 
     public int readCustomerId() {
-        // TODO M1: Ask for existing customer ID; staff handles validation.
-        throw new UnsupportedOperationException("TODO M1: customer ID input");
+        return readInt("Enter customer ID: ");
     }
 
     public int readOrderId() {
-        // TODO M1: Ask for an order ID; staff handles validation.
-        throw new UnsupportedOperationException("TODO M1: order ID input");
+        return readInt("Enter order ID: ");
     }
 }
