@@ -1,4 +1,3 @@
-
 package controller;
 
 import customer.Customer;
@@ -12,9 +11,7 @@ import ui.InputHandler;
 
 /**
  * Stage 1 turn coordinator.
- *
- * Coordinates the order of operations but delegates restaurant rules to
- * staff, customer, order, and table classes.
+ * Coordinates actions; gameplay rules stay in the domain/staff classes.
  */
 public class GameController {
     private final GameState gameState;
@@ -37,7 +34,6 @@ public class GameController {
         this.cashier = Objects.requireNonNull(cashier, "cashier");
     }
 
-    /** Run all 18 turns, then check the three victory requirements. */
     public void run() {
         while (gameState.getCurrentTurn() <= GameConfig.MAX_TURNS) {
             waiter.resetForNewTurn();
@@ -45,7 +41,7 @@ public class GameController {
             playTurn();
 
             if (gameState.getCurrentTurn() == GameConfig.MAX_TURNS) {
-                break; // Do not advance to turn 19.
+                break;
             }
             gameState.advanceTurn();
         }
@@ -53,7 +49,6 @@ public class GameController {
         consoleUI.showFinalResult(gameState, hasWon());
     }
 
-    /** Execute one complete turn in the required Stage 1 order. */
     public void playTurn() {
         int currentTurn = gameState.getCurrentTurn();
 
@@ -68,7 +63,7 @@ public class GameController {
         consoleUI.showEndOfTurn(gameState);
     }
 
-    /** Let the manager choose one VALID Waiter action, or Wait. */
+    /** Action 5 displays history; it does not consume the Waiter's action. */
     public void handleWaiterChoice() {
         while (true) {
             int choice = inputHandler.readWaiterChoice();
@@ -85,15 +80,15 @@ public class GameController {
                         int customerId = inputHandler.readCustomerId();
                         waiter.takeOrder(customerId, gameState);
 
-                        // The customer chooses the food, never the manager.
                         Customer customer = gameState.getCustomerManager()
-                                                       .getCustomerById(customerId);
+                                .getCustomerById(customerId);
                         if (customer != null && customer.getOrder() != null) {
                             consoleUI.showMessage("Customer #" + customerId
                                     + " ordered " + customer.getOrder().getItem().getName()
                                     + " (order #" + customer.getOrder().getId() + ").");
                         } else {
-                            consoleUI.showMessage("Order taken for customer #" + customerId + ".");
+                            consoleUI.showMessage(
+                                    "Order taken for customer #" + customerId + ".");
                         }
                         return;
                     }
@@ -107,17 +102,20 @@ public class GameController {
                         waiter.waitThisTurn();
                         consoleUI.showMessage("Waiter waits this turn.");
                         return;
+                    case 5:
+                        consoleUI.showHistory(gameState);
+                        // Show the menu again; Waiter has not yet acted.
+                        continue;
                     default:
-                        consoleUI.showError("Choose a Waiter action from 1 to 4.");
+                        consoleUI.showError("Choose a Waiter action from 1 to 5.");
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                // Staff must not consume an action when validation fails.
+                // Failed actions do not consume a turn or a staff task.
                 consoleUI.showError(e.getMessage());
             }
         }
     }
 
-    /** The Chef acts after the Waiter and may prepare a newly placed order. */
     public void handleChefChoice() {
         while (true) {
             int choice = inputHandler.readChefChoice();
@@ -127,7 +125,8 @@ public class GameController {
                     case 1: {
                         int orderId = inputHandler.readOrderId();
                         chef.prepareOrder(orderId, gameState);
-                        consoleUI.showMessage("Prepared one unit of order #" + orderId + ".");
+                        consoleUI.showMessage(
+                                "Prepared one unit of order #" + orderId + ".");
                         return;
                     }
                     case 2:
@@ -138,25 +137,20 @@ public class GameController {
                         consoleUI.showError("Choose a Chef action from 1 to 2.");
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                // Invalid requests can be retried in the SAME turn.
                 consoleUI.showError(e.getMessage());
             }
         }
     }
 
-    /** Resolve automatic end-of-turn events in the required order. */
+    /** Keep the original Stage 1 eating, payment and abandonment order. */
     public void processEndOfTurn() {
         int currentTurn = gameState.getCurrentTurn();
 
-        // Customers served in an earlier turn can finish eating now.
         gameState.getCustomerManager().advanceEating(currentTurn);
-
-        // The Cashier handles at most one eligible payment automatically.
         cashier.processOldestEligiblePayment(gameState, currentTurn);
 
-        // Unserved customers lose satisfaction; remove any new abandonments.
         List<Customer> newlyAbandoned = gameState.getCustomerManager()
-                                                .applyEndTurnSatisfactionLoss();
+                .applyEndTurnSatisfactionLoss();
         for (Customer customer : newlyAbandoned) {
             gameState.getOrderManager().cancelUnpaidOrderFor(customer);
             gameState.getTableManager().releaseTable(customer);
@@ -164,11 +158,12 @@ public class GameController {
         }
     }
 
-    /** Victory requires ALL three targets after the 18th turn. */
     public boolean hasWon() {
-        return gameState.getPaidCustomerCount() >= GameConfig.REQUIRED_PAID_CUSTOMERS
-                && gameState.getRevenueCents() >= GameConfig.REQUIRED_REVENUE_CENTS
+        return gameState.getPaidCustomerCount()
+                >= GameConfig.REQUIRED_PAID_CUSTOMERS
+                && gameState.getRevenueCents()
+                >= GameConfig.REQUIRED_REVENUE_CENTS
                 && gameState.getAveragePaidSatisfaction()
-                   >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
+                >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
     }
 }
