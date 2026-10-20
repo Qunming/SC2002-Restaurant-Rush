@@ -1,6 +1,11 @@
 package order;
 
-/** Member 3: Food lifecycle, separate from customer lifecycle. */
+// the status of an order
 public enum OrderStatus {
-    PLACED, PREPARING, READY, SERVED, PAID, CANCELLED
+    PLACED,
+    PREPARING,
+    READY,
+    SERVED,
+    PAID,
+    CANCELLED
 }
