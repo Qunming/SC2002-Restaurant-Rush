@@ -1,8 +1,13 @@
 package controller;
 
 import customer.Customer;
+import customer.CustomerStatus;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import order.Order;
+import order.OrderStatus;
+import restaurant.Table;
 import staff.Cashier;
 import staff.Chef;
 import staff.Waiter;
@@ -10,8 +15,9 @@ import ui.ConsoleUI;
 import ui.InputHandler;
 
 /**
- * Stage 1 turn coordinator.
- * Coordinates actions; gameplay rules stay in the domain/staff classes.
+ * Coordinates Stage 1 turns. Always offers all staff actions, but provides
+ * the UI with eligible IDs and explains failed choices without consuming tasks.
+ * Restaurant rules are enforced by the staff and domain classes.
  */
 public class GameController {
     private final GameState gameState;
@@ -45,7 +51,6 @@ public class GameController {
             }
             gameState.advanceTurn();
         }
-
         consoleUI.showFinalResult(gameState, hasWon());
     }
 
@@ -63,89 +68,169 @@ public class GameController {
         consoleUI.showEndOfTurn(gameState);
     }
 
-    /** Action 5 displays history; it does not consume the Waiter's action. */
+    /** Fixed action numbers, with hints reflecting the current game state. */
     public void handleWaiterChoice() {
         while (true) {
-            int choice = inputHandler.readWaiterChoice();
+            List<Integer> seatIds = eligibleSeatCustomerIds();
+            List<Integer> takeIds = eligibleTakeOrderCustomerIds();
+            List<Integer> serveIds = eligibleServeOrderIds();
+            String seatReason = seatUnavailableReason();
+
+            int choice = inputHandler.readWaiterChoice(
+                    seatIds, seatReason, takeIds, serveIds);
 
             try {
                 switch (choice) {
                     case 1: {
-                        int customerId = inputHandler.readCustomerId();
+                        requireEligible(seatIds, seatReason);
+                        int customerId = inputHandler.readTargetId("customer", seatIds);
                         waiter.seatCustomer(customerId, gameState);
-                        consoleUI.showMessage("Seated customer #" + customerId + ".");
+                        consoleUI.showMessage("Seated Customer #" + customerId + ".");
                         return;
                     }
                     case 2: {
-                        int customerId = inputHandler.readCustomerId();
+                        requireEligible(takeIds,
+                                "No seated customer is waiting to place an order.");
+                        int customerId = inputHandler.readTargetId("customer", takeIds);
                         waiter.takeOrder(customerId, gameState);
-
                         Customer customer = gameState.getCustomerManager()
                                 .getCustomerById(customerId);
-                        if (customer != null && customer.getOrder() != null) {
-                            consoleUI.showMessage("Customer #" + customerId
-                                    + " ordered " + customer.getOrder().getItem().getName()
-                                    + " (order #" + customer.getOrder().getId() + ").");
-                        } else {
-                            consoleUI.showMessage(
-                                    "Order taken for customer #" + customerId + ".");
-                        }
+                        Order placed = customer.getOrder();
+                        consoleUI.showMessage("Customer #" + customerId
+                                + " ordered " + placed.getItem().getName()
+                                + " (Order #" + placed.getId() + ").");
                         return;
                     }
                     case 3: {
-                        int orderId = inputHandler.readOrderId();
+                        requireEligible(serveIds,
+                                "No order was READY before this turn.");
+                        int orderId = inputHandler.readTargetId("order", serveIds);
                         waiter.serveOrder(orderId, gameState);
-                        consoleUI.showMessage("Served order #" + orderId + ".");
+                        consoleUI.showMessage("Served Order #" + orderId + ".");
                         return;
                     }
                     case 4:
                         waiter.waitThisTurn();
                         consoleUI.showMessage("Waiter waits this turn.");
                         return;
+
                     case 5:
                         consoleUI.showHistory(gameState);
-                        // Show the menu again; Waiter has not yet acted.
-                        continue;
+                        // No staff action consumed. Return to Waiter menu.
+                        break;
+
                     default:
-                        consoleUI.showError("Choose a Waiter action from 1 to 5.");
+                        throw new IllegalArgumentException(
+                                "Choose a Waiter action from 1 to 5.");
                 }
-            } catch (IllegalArgumentException | IllegalStateException e) {
-                // Failed actions do not consume a turn or a staff task.
-                consoleUI.showError(e.getMessage());
+            } catch (IllegalArgumentException | IllegalStateException ex) {
+                consoleUI.showError(ex.getMessage()
+                        + " No staff task was used; please choose again.");
             }
         }
     }
 
+    /** Chef choices refresh after Waiter, including orders placed this turn. */
     public void handleChefChoice() {
         while (true) {
-            int choice = inputHandler.readChefChoice();
+            List<Integer> prepareIds = eligiblePrepareOrderIds();
+            int choice = inputHandler.readChefChoice(prepareIds);
 
             try {
                 switch (choice) {
                     case 1: {
-                        int orderId = inputHandler.readOrderId();
+                        requireEligible(prepareIds,
+                                "No order is currently PLACED or PREPARING.");
+                        int orderId = inputHandler.readTargetId("order", prepareIds);
                         chef.prepareOrder(orderId, gameState);
-                        consoleUI.showMessage(
-                                "Prepared one unit of order #" + orderId + ".");
+                        consoleUI.showMessage("Prepared one unit of Order #"
+                                + orderId + ".");
                         return;
                     }
                     case 2:
                         chef.waitThisTurn();
                         consoleUI.showMessage("Chef waits this turn.");
                         return;
+
                     default:
-                        consoleUI.showError("Choose a Chef action from 1 to 2.");
+                        throw new IllegalArgumentException(
+                                "Choose a Chef action from 1 to 2.");
                 }
-            } catch (IllegalArgumentException | IllegalStateException e) {
-                consoleUI.showError(e.getMessage());
+            } catch (IllegalArgumentException | IllegalStateException ex) {
+                consoleUI.showError(ex.getMessage()
+                        + " No staff task was used; please choose again.");
             }
         }
     }
 
-    /** Keep the original Stage 1 eating, payment and abandonment order. */
+    private void requireEligible(List<Integer> ids, String reason) {
+        if (ids.isEmpty()) {
+            throw new IllegalStateException(reason);
+        }
+    }
+
+    private boolean hasFreeTable() {
+        for (Table table : gameState.getTableManager().getTables()) {
+            if (table.isAvailable()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String seatUnavailableReason() {
+        if (!hasFreeTable()) {
+            return "All tables are occupied.";
+        }
+        return "There are no customers waiting for a table.";
+    }
+
+    private List<Integer> eligibleSeatCustomerIds() {
+        List<Integer> ids = new ArrayList<>();
+        if (hasFreeTable()) {
+            for (Customer customer : gameState.getCustomerManager().getWaitingCustomers()) {
+                ids.add(customer.getId());
+            }
+        }
+        return ids;
+    }
+
+    private List<Integer> eligibleTakeOrderCustomerIds() {
+        List<Integer> ids = new ArrayList<>();
+        for (Customer customer : gameState.getCustomerManager().getActiveCustomers()) {
+            if (customer.getStatus() == CustomerStatus.SEATED) {
+                ids.add(customer.getId());
+            }
+        }
+        return ids;
+    }
+
+    private List<Integer> eligibleServeOrderIds() {
+        List<Integer> ids = new ArrayList<>();
+        for (Order order : gameState.getOrderManager().getOrders()) {
+            if (order.getStatus() == OrderStatus.READY
+                    && order.getReadyTurn() < gameState.getCurrentTurn()
+                    && order.getCustomer().getStatus() == CustomerStatus.ORDERED) {
+                ids.add(order.getId());
+            }
+        }
+        return ids;
+    }
+
+    private List<Integer> eligiblePrepareOrderIds() {
+        List<Integer> ids = new ArrayList<>();
+        for (Order order : gameState.getOrderManager().getOrders()) {
+            if (order.getStatus() == OrderStatus.PLACED
+                    || order.getStatus() == OrderStatus.PREPARING) {
+                ids.add(order.getId());
+            }
+        }
+        return ids;
+    }
+
+    /** Existing Stage 1 timing, cashier and abandonment logic is unchanged. */
     public void processEndOfTurn() {
         int currentTurn = gameState.getCurrentTurn();
-
         gameState.getCustomerManager().advanceEating(currentTurn);
         cashier.processOldestEligiblePayment(gameState, currentTurn);
 

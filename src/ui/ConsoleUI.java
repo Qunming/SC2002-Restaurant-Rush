@@ -6,7 +6,6 @@ import customer.Customer;
 import customer.CustomerStatus;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import order.Order;
 import order.OrderStatus;
 import restaurant.Table;
@@ -34,7 +33,6 @@ public class ConsoleUI {
         showTables(state);
         showWaitingQueue(state);
         showActiveOrders(state);
-        showStaffChoices(state, waiter, chef);
     }
 
     private void showStatistics(GameState state) {
@@ -181,59 +179,7 @@ public class ConsoleUI {
                 + AnsiColors.paint(Integer.toString(paidCount), AnsiColors.GREEN)
                 + " paid | "
                 + AnsiColors.paint(Integer.toString(cancelledCount), AnsiColors.RED)
-                + " cancelled  (option 5 = order history)");
-    }
-
-    private void showStaffChoices(GameState state, Waiter waiter, Chef chef) {
-        section("STAFF / ELIGIBLE TARGETS");
-
-        if (waiter.hasActedThisTurn()) {
-            System.out.println("  Waiter  - Already acted");
-        } else {
-            List<Integer> seatIds = new ArrayList<>();
-            if (hasFreeTable(state)) {
-                for (Customer customer :
-                        state.getCustomerManager().getWaitingCustomers()) {
-                    seatIds.add(customer.getId());
-                }
-            }
-
-            List<Integer> takeIds = new ArrayList<>();
-            for (Customer customer : state.getCustomerManager().getActiveCustomers()) {
-                if (customer.getStatus() == CustomerStatus.SEATED) {
-                    takeIds.add(customer.getId());
-                }
-            }
-
-            List<Integer> serveIds = new ArrayList<>();
-            for (Order order : state.getOrderManager().getOrders()) {
-                if (canServe(order, state.getCurrentTurn())) {
-                    serveIds.add(order.getId());
-                }
-            }
-
-            System.out.println("  Waiter  - Seat C#: " + ids(seatIds)
-                    + " | Take C#: " + ids(takeIds)
-                    + " | Serve O#: " + ids(serveIds) + " | Wait");
-        }
-
-        if (chef.hasActedThisTurn()) {
-            System.out.println("  Chef    - Already acted");
-        } else {
-            List<Integer> prepareIds = new ArrayList<>();
-            for (Order order : state.getOrderManager().getOrders()) {
-                if (order.getStatus() == OrderStatus.PLACED
-                        || order.getStatus() == OrderStatus.PREPARING) {
-                    prepareIds.add(order.getId());
-                }
-            }
-            System.out.println("  Chef    - Prepare O#: " + ids(prepareIds)
-                    + " | Wait");
-            System.out.println("            (Can also cook an order just taken this turn)");
-        }
-
-        System.out.println("  Cashier - Automatic, maximum one payment per turn");
-        System.out.println("  C# = Customer ID, O# = Order ID, -- = not available");
+                + " cancelled  (history available in Waiter menu)");
     }
 
     /** Viewing history does NOT use a Waiter or Chef action. */
@@ -358,14 +304,4 @@ public class ConsoleUI {
                 && order.getReadyTurn() < currentTurn;
     }
 
-    private String ids(List<Integer> values) {
-        if (values.isEmpty()) {
-            return "--";
-        }
-        StringJoiner joiner = new StringJoiner(",");
-        for (int id : values) {
-            joiner.add(Integer.toString(id));
-        }
-        return joiner.toString();
-    }
 }
