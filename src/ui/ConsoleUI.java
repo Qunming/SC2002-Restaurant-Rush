@@ -1,40 +1,94 @@
+
 package ui;
 
 import controller.GameState;
+import customer.Customer;
+import java.util.List;
+import order.Order;
+import restaurant.Table;
 import staff.Chef;
 import staff.Waiter;
 
-/** Member 1: Displays information. The UI never owns game rules. */
+/**
+ * Displays game information.
+ * Game rules and state changes belong to other classes.
+ */
 public class ConsoleUI {
+
     public void showStartOfTurn(GameState gameState, Waiter waiter, Chef chef) {
-        System.out.println("START OF TURN");
-        System.out.println("Current turn: " + getCurrentTurn());
-        System.out.println("Revenue: $" + getRevenueCents());
-        System.out.println("Average satisfaction of paid customers: " + getAveragePaidSatisfaction());
-        System.out.println("Waiting queue: " + getWaitingCustomers);
-        System.out.println("Occupied Tables: " + OccupiedTables); //I NEED occupiedtable method*******
-        List<Order> allOrders = gameState.getOrderManager().getOrders();
-    
-        System.out.println("Active Orders:");
-        if (allOrders.isEmpty()) {
-            System.out.println("  (None)");
+        System.out.println("\n========== TURN " + gameState.getCurrentTurn() + " ==========");
+        showStatistics(gameState);
+
+        // Waiting customers, in queue order.
+        System.out.println("\nWaiting queue:");
+        List<Customer> waiting = gameState.getCustomerManager().getWaitingCustomers();
+
+        if (waiting.isEmpty()) {
+            System.out.println("  None");
         } else {
-            for (Order order : allOrders) {
-                // Printing ID, Table Number, and the OrderStatus enum
-                System.out.println("  - Order #" + order.getId() + 
-                                   " | Status: " + order.getStatus());
+            for (Customer customer : waiting) {
+                System.out.println("  Customer #" + customer.getId()
+                        + " | Satisfaction: " + customer.getSatisfaction());
             }
         }
-        System.out.println("Available staff tasks: " + AvailableStaffTasks);
+
+        // Display all tables.
+        System.out.println("\nTables:");
+        for (Table table : gameState.getTableManager().getTables()) {
+            Customer occupant = table.getOccupant();
+
+            if (occupant == null) {
+                System.out.println("  Table " + table.getNumber() + ": Available");
+            } else {
+                System.out.println("  Table " + table.getNumber()
+                        + ": Customer #" + occupant.getId()
+                        + " (" + occupant.getStatus() + ")");
+            }
+        }
+
+        // Display active customers and their satisfaction.
+        System.out.println("\nActive customers:");
+        List<Customer> active = gameState.getCustomerManager().getActiveCustomers();
+
+        if (active.isEmpty()) {
+            System.out.println("  None");
+        } else {
+            for (Customer customer : active) {
+                System.out.println("  Customer #" + customer.getId()
+                        + " | " + customer.getStatus()
+                        + " | Satisfaction: " + customer.getSatisfaction());
+            }
+        }
+
+        // Display all orders.
+        System.out.println("\nOrders:");
+        List<Order> orders = gameState.getOrderManager().getOrders();
+
+        if (orders.isEmpty()) {
+            System.out.println("  None");
+        } else {
+            for (Order order : orders) {
+                System.out.println("  Order #" + order.getId()
+                        + " | Customer #" + order.getCustomer().getId()
+                        + " | " + order.getItem().getName()
+                        + " | " + order.getStatus());
+            }
+        }
+
+        // Display staff task options.
+        System.out.println("\nAvailable staff tasks:");
+        System.out.println("  Waiter: " + (waiter.hasActedThisTurn()
+                ? "Already acted" : "Seat / Take Order / Serve / Wait"));
+        System.out.println("  Chef: " + (chef.hasActedThisTurn()
+                ? "Already acted" : "Prepare / Wait"));
+        System.out.println("  Cashier: Automatic payment (max 1 per turn)");
     }
 
     public void showEndOfTurn(GameState gameState) {
-        System.out.println("END OF TURN");
-        System.out.println("Turns used: " + getCurrentTurn());
-        System.out.println("Revenue: $" + getRevenueCents());
-        {System.out.println("Average satisfaction of paid customers :" + getAveragePaidSatisfaction());}
-        System.out.println("Served Count: " + getServedCustomerCount());
-        System.out.println("Unhappy departures: " + getAbandonedCustomerCount());
+        System.out.println("\n----- END OF TURN " + gameState.getCurrentTurn() + " -----");
+        showStatistics(gameState);
+        System.out.println("Served customers: " + gameState.getServedCustomerCount());
+        System.out.println("Abandoned customers: " + gameState.getAbandonedCustomerCount());
     }
 
     public void showMessage(String message) {
@@ -42,13 +96,28 @@ public class ConsoleUI {
     }
 
     public void showError(String errorMessage) {
-        System.out.println("Invalid choice: " + errorMessage);
+        System.out.println("Invalid action: " + errorMessage);
     }
 
     public void showFinalResult(GameState gameState, boolean victory) {
-        if (haswon()) {
-            System.out.println("VICTORY!");
+        System.out.println("\n========== GAME OVER ==========");
+        System.out.println(victory ? "VICTORY!" : "DEFEAT!");
+
+        showStatistics(gameState);
+        System.out.println("Served customers: " + gameState.getServedCustomerCount());
+        System.out.println("Abandoned customers: " + gameState.getAbandonedCustomerCount());
+    }
+
+    // Reuse the same display format throughout the game.
+    private void showStatistics(GameState gameState) {
+        System.out.printf("Revenue: $%.2f%n", gameState.getRevenueCents() / 100.0);
+        System.out.println("Paid customers: " + gameState.getPaidCustomerCount());
+
+        if (gameState.getPaidCustomerCount() == 0) {
+            System.out.println("Average paid satisfaction: N/A");
         } else {
-            System.out.println("DEFEAT");
+            System.out.printf("Average paid satisfaction: %.1f%n",
+                    gameState.getAveragePaidSatisfaction());
         }
+    }
 }
