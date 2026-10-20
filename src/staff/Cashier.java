@@ -7,7 +7,7 @@ import order.Order;
 import order.OrderStatus;
 import restaurant.Table;
 
-/** Automatically processes at most one eligible payment per turn. */
+/** Collects at most one automatic payment per turn. */
 public class Cashier {
     private int lastPaymentTurn = -1;
 
@@ -19,25 +19,28 @@ public class Cashier {
             throw new IllegalArgumentException("Payment turn does not match the game turn.");
         }
         if (lastPaymentTurn == currentTurn) {
-            return null; // Already processed one payment this turn.
+            return null;
         }
 
+        // Only customers ready to pay since an earlier turn are eligible.
         Customer customer = gameState.getCustomerManager()
                 .getOldestReadyToPayCustomer(currentTurn);
         if (customer == null) {
-            return null; // Nobody is eligible to pay yet.
+            return null;
         }
 
         Order order = customer.getOrder();
         if (order == null || order.getCustomer() != customer
                 || order.getStatus() != OrderStatus.SERVED) {
-            throw new IllegalStateException("Customer has no valid served order to pay for.");
+            throw new IllegalStateException("Customer has no valid served order.");
         }
 
-        // Check table ownership before recording payment to avoid partial updates.
+        // Validate ownership before recording money or changing payment status.
         Table table = customer.getTable();
-        if (table == null || table.getOccupant() != customer) {
-            throw new IllegalStateException("Customer does not occupy a valid table.");
+        if (table == null
+                || !gameState.getTableManager().getTables().contains(table)
+                || table.getOccupant() != customer) {
+            throw new IllegalStateException("Customer does not occupy a restaurant table.");
         }
 
         // GameState marks the customer PAID and records revenue/satisfaction.
