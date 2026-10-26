@@ -1,34 +1,34 @@
+
 package menu;
 
 import java.util.ArrayList;
 import java.util.List;
 
+// Stores and manages the available menu items
 public class Menu {
-    private final List<MenuItem> availableMenuItems = new ArrayList<>();
 
-    // creates the default Stage 1 menu
+    private final List<MenuItem> items = new ArrayList<>();
+
+    // Constructor
     public Menu() {
-        availableMenuItems.add(
-                new MenuItem("SALAD", "Salad", 900, 1));
-        availableMenuItems.add(
-                new MenuItem("BURGER", "Burger", 1500, 1));
-        availableMenuItems.add(
-                new MenuItem("PASTA", "Pasta", 1800, 2));
+        items.add(new MenuItem("SALAD", "Salad", 900, 1));
+        items.add(new MenuItem("BURGER", "Burger", 1500, 1));
+        items.add(new MenuItem("PASTA", "Pasta", 1800, 2));
     }
 
-    // returns the available menu items
+    // Return all menu items
     public List<MenuItem> getItems() {
-        return List.copyOf(availableMenuItems);
+        return List.copyOf(items);
     }
 
-    // finds a menu item using its code
-    public MenuItem getItemByCode(String itemCode) {
-        if (itemCode == null) {
+    // Find a menu item using its code
+    public MenuItem getItemByCode(String code) {
+        if (code == null) {
             return null;
         }
 
-        for (MenuItem item : availableMenuItems) {
-            if (item.getCode().equalsIgnoreCase(itemCode)) {
+        for (MenuItem item : items) {
+            if (item.getCode().equalsIgnoreCase(code)) {
                 return item;
             }
         }
