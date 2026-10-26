@@ -21,7 +21,8 @@ public class Order {
     // Constructor
     public Order(int id, Customer customer, MenuItem menuItem) {
         if (id <= 0) {
-            throw new IllegalArgumentException("Order ID must be positive.");
+            throw new IllegalArgumentException(
+                "Order ID must be positive.");
         }
 
         if (customer == null || menuItem == null) {
@@ -33,8 +34,16 @@ public class Order {
         this.customer = customer;
         this.menuItem = menuItem;
 
-        // Fix the price when the order is created
-        this.priceCents = menuItem.getPriceCents();
+        // Apply the customer's discount and fix the price
+        int discountPercent = customer.getDiscountPercent();
+
+        if (discountPercent < 0 || discountPercent > 100) {
+            throw new IllegalArgumentException(
+                "Discount must be between 0 and 100.");
+        }
+
+        this.priceCents = (menuItem.getPriceCents()
+                * (100 - discountPercent) + 50) / 100;
     }
 
     // Getters
@@ -68,7 +77,8 @@ public class Order {
 
     // Calculate remaining cooking units
     public int getRemainingPreparationUnits() {
-        return menuItem.getPreparationUnits() - completedPreparationUnits;
+        return menuItem.getPreparationUnits()
+                - completedPreparationUnits;
     }
 
     // Chef prepares one unit per action
@@ -107,7 +117,7 @@ public class Order {
                 "Only ready orders can be served.");
         }
 
-        // Cannot serve an order on the same turn it becomes READY
+        // The order must be ready before the current turn
         if (currentTurn <= readyTurn) {
             throw new IllegalStateException(
                 "Order must be ready from an earlier turn.");
