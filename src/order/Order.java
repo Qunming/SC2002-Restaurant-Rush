@@ -1,3 +1,4 @@
+
 package order;
 
 import customer.Customer;
@@ -32,10 +33,8 @@ public class Order {
         this.customer = customer;
         this.menuItem = menuItem;
 
-        // Apply the customer's discount and fix the price
-        int discountPercent = customer.getDiscountPercent();
-        this.priceCents = (menuItem.getPriceCents()
-                * (100 - discountPercent) + 50) / 100;
+        // Fix the price when the order is created
+        this.priceCents = menuItem.getPriceCents();
     }
 
     // Getters
@@ -140,4 +139,3 @@ public class Order {
         status = OrderStatus.CANCELLED;
     }
 }
-
