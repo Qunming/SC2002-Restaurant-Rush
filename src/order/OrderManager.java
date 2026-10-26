@@ -14,50 +14,43 @@ public class OrderManager {
     private final List<Order> orders = new ArrayList<>();
     private int nextOrderId = 1;
 
-  
     // Create an order for a seated customer
     public Order createOrder(Customer customer, Menu menu) {
         if (customer == null || menu == null) {
             throw new IllegalArgumentException(
                 "Customer and menu cannot be null.");
         }
-    
+
         if (customer.getStatus() != CustomerStatus.SEATED) {
             throw new IllegalStateException(
                 "Only seated customers can place orders.");
         }
-    
+
         // Prevent a customer from ordering twice
         if (customer.getOrder() != null) {
             throw new IllegalStateException(
                 "Customer already has an order.");
         }
-    
+
         // Customer automatically chooses food
         MenuItem selectedFood = customer.chooseMenuItem(menu);
-    
-        if (selectedFood == null) {
-            throw new IllegalStateException(
-                "Customer did not select a menu item.");
-        }
-    
-        // Create the order with the customer's discount
+
+        // Create the order
         Order newOrder = new Order(
             nextOrderId,
             customer,
             selectedFood
         );
-    
+
         // Assign the order to the customer
         customer.assignOrder(newOrder);
-    
+
         // Store the new order
         orders.add(newOrder);
         nextOrderId++;
-    
+
         return newOrder;
     }
-
 
     // Find an order using its ID
     public Order getOrderById(int orderId) {
