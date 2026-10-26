@@ -1,4 +1,4 @@
-
+```java
 package order;
 
 import customer.Customer;
@@ -33,8 +33,10 @@ public class Order {
         this.customer = customer;
         this.menuItem = menuItem;
 
-        // Fix the price when the order is created
-        this.priceCents = menuItem.getPriceCents();
+        // Apply the customer's discount and fix the price
+        int discountPercent = customer.getDiscountPercent();
+        this.priceCents = (menuItem.getPriceCents()
+                * (100 - discountPercent) + 50) / 100;
     }
 
     // Getters
@@ -139,3 +141,4 @@ public class Order {
         status = OrderStatus.CANCELLED;
     }
 }
+```
