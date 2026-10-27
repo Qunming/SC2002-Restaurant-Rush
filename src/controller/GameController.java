@@ -252,3 +252,4 @@ public class GameController {
                 >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
     }
 }
+//hi
