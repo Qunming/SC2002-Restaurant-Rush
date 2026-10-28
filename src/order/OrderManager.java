@@ -35,6 +35,11 @@ public class OrderManager {
         // Customer automatically chooses food
         MenuItem selectedFood = customer.chooseMenuItem(menu);
 
+        if (selectedFood == null) {
+            throw new IllegalStateException(
+                "Customer did not select a menu item.");
+        }
+
         // Create the order
         Order newOrder = new Order(
             nextOrderId,
@@ -111,7 +116,6 @@ public class OrderManager {
 
             // Find the customer's order
             if (order.getCustomer() == customer) {
-
                 OrderStatus status = order.getStatus();
 
                 // Only cancel orders that have not been served
@@ -121,7 +125,7 @@ public class OrderManager {
                     order.cancel();
                 }
 
-                // Each customer has only one order in Stage 1
+                // Each customer has only one order in Stage 2
                 return;
             }
         }

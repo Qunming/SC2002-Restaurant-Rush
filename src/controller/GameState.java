@@ -11,7 +11,7 @@ import order.OrderStatus;
 import restaurant.TableManager;
 import java.util.Objects;
 
-/** Stores the current turn, shared managers, and game statistics. */
+// Stores the current turn, shared managers, and game statistics
 public class GameState {
     private final CustomerManager customerManager;
     private final TableManager tableManager;
@@ -25,63 +25,104 @@ public class GameState {
     private int servedCustomerCount = 0;
     private int abandonedCustomerCount = 0;
 
-    public GameState(CustomerManager customerManager, TableManager tableManager,
-                     OrderManager orderManager, Menu menu) {
+    // Constructor
+    public GameState(CustomerManager customerManager,
+                     TableManager tableManager,
+                     OrderManager orderManager,
+                     Menu menu) {
         this.customerManager = Objects.requireNonNull(customerManager);
         this.tableManager = Objects.requireNonNull(tableManager);
         this.orderManager = Objects.requireNonNull(orderManager);
         this.menu = Objects.requireNonNull(menu);
     }
 
-    public CustomerManager getCustomerManager() { return customerManager; }
-    public TableManager getTableManager() { return tableManager; }
-    public OrderManager getOrderManager() { return orderManager; }
-    public Menu getMenu() { return menu; }
+    // Getters
+    public CustomerManager getCustomerManager() {
+        return customerManager;
+    }
 
-    public int getCurrentTurn() { return currentTurn; }
-    public int getRevenueCents() { return revenueCents; }
-    public int getPaidCustomerCount() { return paidCustomerCount; }
-    public int getServedCustomerCount() { return servedCustomerCount; }
-    public int getAbandonedCustomerCount() { return abandonedCustomerCount; }
+    public TableManager getTableManager() {
+        return tableManager;
+    }
 
+    public OrderManager getOrderManager() {
+        return orderManager;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public int getCurrentTurn() {
+        return currentTurn;
+    }
+
+    public int getRevenueCents() {
+        return revenueCents;
+    }
+
+    public int getPaidCustomerCount() {
+        return paidCustomerCount;
+    }
+
+    public int getServedCustomerCount() {
+        return servedCustomerCount;
+    }
+
+    public int getAbandonedCustomerCount() {
+        return abandonedCustomerCount;
+    }
+
+    // Calculate the average satisfaction of paid customers
     public double getAveragePaidSatisfaction() {
         if (paidCustomerCount == 0) {
             return 0.0;
         }
+
         return (double) totalPaidSatisfaction / paidCustomerCount;
     }
 
+    // Move to the next turn
     public void advanceTurn() {
         currentTurn++;
     }
 
-    /** Called once by Cashier when an eligible customer pays. */
+    // Record a customer's payment
     public void recordPayment(Customer customer, Order order) {
         if (customer == null || order == null) {
-            throw new IllegalArgumentException("Customer and order cannot be null.");
+            throw new IllegalArgumentException(
+                "Customer and order cannot be null.");
         }
 
-        if (customer.getOrder() != order || order.getCustomer() != customer) {
-            throw new IllegalArgumentException("Order does not belong to this customer.");
+        if (customer.getOrder() != order
+                || order.getCustomer() != customer) {
+            throw new IllegalArgumentException(
+                "Order does not belong to this customer.");
         }
 
         if (customer.getStatus() != CustomerStatus.READY_TO_PAY
                 || order.getStatus() != OrderStatus.SERVED) {
-            throw new IllegalStateException("Customer and order are not ready for payment.");
+            throw new IllegalStateException(
+                "Customer and order are not ready for payment.");
         }
 
-        // Prevent the same customer from being charged twice.
+        // Mark the customer as paid
         customer.markPaid();
 
+        // Add the locked order price to the revenue
         revenueCents += order.getFinalPriceCents();
+
+        // Record satisfaction when the customer pays
         totalPaidSatisfaction += customer.getSatisfaction();
         paidCustomerCount++;
     }
 
+    // Record a customer being served
     public void recordServing() {
         servedCustomerCount++;
     }
 
+    // Record a customer leaving without paying
     public void recordAbandonment() {
         abandonedCustomerCount++;
     }

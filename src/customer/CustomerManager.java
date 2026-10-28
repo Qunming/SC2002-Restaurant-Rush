@@ -9,6 +9,7 @@ public class CustomerManager {
     private final List<Customer> customers = new ArrayList<>();
 
     // Register a new customer
+    // Stage 2: Accepts Regular, VIP and Critic customers.
     public void addCustomer(Customer customer) {
 
         if (customer == null) {
@@ -38,6 +39,7 @@ public class CustomerManager {
     }
 
     // Get list of customers waiting for a table
+    // Stage 2: All customer types remain in arrival order.
     public List<Customer> getWaitingCustomers() {
 
         List<Customer> waitingCustomers = new ArrayList<>();
@@ -99,12 +101,16 @@ public class CustomerManager {
 
             Customer customer = customers.get(i);
 
-            //Customer can only make payment at least 1 turn after his ReadyToPayTurn
-            if (customer.getStatus() != CustomerStatus.READY_TO_PAY || customer.getReadyToPayTurn() >= currentTurn) {
+            // Customer can only make payment at least 1 turn
+            // after their ReadyToPayTurn.
+            if (customer.getStatus() != CustomerStatus.READY_TO_PAY
+                    || customer.getReadyToPayTurn() >= currentTurn) {
                 continue;
             }
 
-            if (oldestEligibleCustomer == null || customer.getReadyToPayTurn() < oldestEligibleCustomer.getReadyToPayTurn()) {
+            if (oldestEligibleCustomer == null
+                    || customer.getReadyToPayTurn()
+                    < oldestEligibleCustomer.getReadyToPayTurn()) {
 
                 oldestEligibleCustomer = customer;
             }
@@ -120,7 +126,8 @@ public class CustomerManager {
 
             Customer customer = customers.get(i);
 
-            if (customer.getStatus() == CustomerStatus.SERVED && customer.getServedTurn() < currentTurn) {
+            if (customer.getStatus() == CustomerStatus.SERVED
+                    && customer.getServedTurn() < currentTurn) {
 
                 customer.markReadyToPay(currentTurn);
             }
@@ -142,10 +149,15 @@ public class CustomerManager {
                     || status == CustomerStatus.SEATED
                     || status == CustomerStatus.ORDERED;
 
-            if (!isUnserved) {      //If customer has been Served
+            if (!isUnserved) {
                 continue;
             }
 
+            // Stage 2: Polymorphism
+            // Regular: -8
+            // VIP:     -5
+            // Critic: -12
+            // Customer determines its own satisfaction loss.
             customer.decreaseWaitingSatisfaction();
 
             if (customer.getSatisfaction() == 0) {

@@ -36,6 +36,21 @@ public class Customer {
     public int getServedTurn() { return servedTurn; }
     public int getReadyToPayTurn() { return readyToPayTurn; }
 
+    // Stage 2: Customer type (subclasses can override this).
+    public String getCustomerType() {
+        return "Regular";
+    }
+
+    // Stage 2: Different customer types can lose satisfaction differently.
+    public int getWaitingSatisfactionLoss() {
+        return WAITING_SATISFACTION_LOSS;
+    }
+
+    // Stage 2: Regular customers have no discount.
+    public int getDiscountPercent() {
+        return 0;
+    }
+
     // Food is chosen by the customer, not by the player.
     public MenuItem chooseMenuItem(Menu menu) {
         if (menu == null) {
@@ -98,7 +113,8 @@ public class Customer {
 
     public void decreaseWaitingSatisfaction() {
         if (isAwaitingService()) {
-            satisfaction = Math.max(0, satisfaction - WAITING_SATISFACTION_LOSS);
+            // Stage 2: Use the customer's own satisfaction loss.
+            satisfaction = Math.max(0, satisfaction - getWaitingSatisfactionLoss());
         }
     }
 
