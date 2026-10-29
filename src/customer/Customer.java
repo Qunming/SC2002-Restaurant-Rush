@@ -1,177 +1,162 @@
 
 package customer;
 
-import java.util.ArrayList;
 import java.util.List;
+import menu.Menu;
+import menu.MenuItem;
+import order.Order;
+import restaurant.Table;
 
-public class CustomerManager {
+public class Customer {
+    private static final int STARTING_SATISFACTION = 100;
+    private static final int WAITING_SATISFACTION_LOSS = 8;
 
-    // Stage 3: Satisfaction recovered during Happy Hour.
-    private static final int HAPPY_HOUR_RECOVERY = 15;
+    private final int id;
+    private int satisfaction = STARTING_SATISFACTION;
+    private CustomerStatus status = CustomerStatus.WAITING;
 
-    private final List<Customer> customers = new ArrayList<>();
+    private Table assignedTable;
+    private Order order;
+    private int servedTurn = -1;
+    private int readyToPayTurn = -1;
 
-    // Register a new customer, accepts Regular, VIP and Critic customers.
-    public void addCustomer(Customer customer) {
-
-        if (customer == null) {
-            throw new IllegalArgumentException("Customer cannot be null");
+    public Customer(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Customer ID must be positive.");
         }
-
-        if (getCustomerById(customer.getId()) != null) {
-            throw new IllegalArgumentException("Customer ID already exists");
-        }
-
-        customers.add(customer);
+        this.id = id;
     }
 
-    // Find a customer by ID
-    public Customer getCustomerById(int customerId) {
+    public int getId() { return id; }
+    public int getSatisfaction() { return satisfaction; }
+    public CustomerStatus getStatus() { return status; }
+    public Table getTable() { return assignedTable; }
+    public Order getOrder() { return order; }
+    public int getServedTurn() { return servedTurn; }
+    public int getReadyToPayTurn() { return readyToPayTurn; }
 
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-
-            if (customer.getId() == customerId) {
-                return customer;
-            }
-        }
-
-        return null;
+    public String getCustomerType() {
+        return "Regular";
     }
 
-    // Get list of customers waiting for a table
-    public List<Customer> getWaitingCustomers() {
-
-        List<Customer> waitingCustomers = new ArrayList<>();
-
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-
-            if (customer.getStatus() == CustomerStatus.WAITING) {
-                waitingCustomers.add(customer);
-            }
-        }
-
-        return waitingCustomers;
+    public int getWaitingSatisfactionLoss() {
+        return WAITING_SATISFACTION_LOSS;
     }
 
-    // Get list of customers who have not paid or abandoned
-    public List<Customer> getActiveCustomers() {
-
-        List<Customer> activeCustomers = new ArrayList<>();
-
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-            CustomerStatus status = customer.getStatus();
-
-            if (status != CustomerStatus.PAID && status != CustomerStatus.ABANDONED) {
-
-                activeCustomers.add(customer);
-            }
-        }
-
-        return activeCustomers;
+    public int getDiscountPercent() {
+        return 0;
     }
 
-    // Get list of customers who have paid
-    public List<Customer> getPaidCustomers() {
-
-        List<Customer> paidCustomers = new ArrayList<>();
-
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-
-            if (customer.getStatus() == CustomerStatus.PAID) {
-                paidCustomers.add(customer);
-            }
+    // customer chooses their own food
+    public MenuItem chooseMenuItem(Menu menu) {
+        if (menu == null) {
+            throw new IllegalArgumentException("Menu cannot be null.");
         }
 
-        return paidCustomers;
-    }
-
-    // Find the oldest customer eligible for payment
-    public Customer getOldestReadyToPayCustomer(int currentTurn) {
-
-        Customer oldestEligibleCustomer = null;
-
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-
-            // Customer can only make payment at least 1 turn after their ReadyToPayTurn.
-            if (customer.getStatus() != CustomerStatus.READY_TO_PAY
-                    || customer.getReadyToPayTurn() >= currentTurn) {
-                continue;
-            }
-
-            if (oldestEligibleCustomer == null
-                    || customer.getReadyToPayTurn()
-                    < oldestEligibleCustomer.getReadyToPayTurn()) {
-
-                oldestEligibleCustomer = customer;
-            }
+        List<MenuItem> items = menu.getItems();
+        if (items.isEmpty()) {
+            throw new IllegalStateException("Menu has no items.");
         }
 
-        return oldestEligibleCustomer;
+        return items.get((id - 1) % items.size());
     }
 
-    // Update customers who have finished eating
-    public void advanceEating(int currentTurn) {
+    public void seatAt(Table table) {
+        if (status != CustomerStatus.WAITING
+                || table == null || assignedTable != null) {
+            throw new IllegalArgumentException("Customer cannot be seated.");
+        }
 
-        for (int i = 0; i < customers.size(); i++) {
+        assignedTable = table;
+        status = CustomerStatus.SEATED;
+    }
 
-            Customer customer = customers.get(i);
+    public void assignOrder(Order newOrder) {
+        if (status != CustomerStatus.SEATED
+                || newOrder == null
+                || newOrder.getCustomer() != this
+                || order != null) {
+            throw new IllegalArgumentException(
+                    "Cannot assign order to customer.");
+        }
 
-            if (customer.getStatus() == CustomerStatus.SERVED
-                    && customer.getServedTurn() < currentTurn) {
+        order = newOrder;
+        status = CustomerStatus.ORDERED;
+    }
 
-                customer.markReadyToPay(currentTurn);
-            }
+    public void markServed(int currentTurn) {
+        if (status != CustomerStatus.ORDERED || currentTurn < 1) {
+            throw new IllegalArgumentException("Customer cannot be served.");
+        }
+
+        status = CustomerStatus.SERVED;
+        servedTurn = currentTurn;
+    }
+
+    public void markReadyToPay(int currentTurn) {
+        if (status != CustomerStatus.SERVED
+                || currentTurn <= servedTurn) {
+            throw new IllegalArgumentException(
+                    "Customer has not finished eating.");
+        }
+
+        status = CustomerStatus.READY_TO_PAY;
+        readyToPayTurn = currentTurn;
+    }
+
+    public void markPaid() {
+        if (status != CustomerStatus.READY_TO_PAY) {
+            throw new IllegalArgumentException(
+                    "Customer is not ready to pay.");
+        }
+
+        status = CustomerStatus.PAID;
+    }
+
+    public void abandon() {
+        if (!isAwaitingService() || satisfaction != 0) {
+            throw new IllegalArgumentException(
+                    "Customer cannot abandon.");
+        }
+
+        status = CustomerStatus.ABANDONED;
+    }
+
+    // reduce satisfaction based on customer type
+    public void decreaseWaitingSatisfaction() {
+        if (isAwaitingService()) {
+            satisfaction = Math.max(
+                    0, satisfaction - getWaitingSatisfactionLoss());
         }
     }
 
-    // Stage 3: Call once at the start of EACH active Happy Hour turn. 
-    // Customer.recoverSatisfaction() checks eligibility and caps at 100.
+    // stage 3: recover satisfaction during happy hour
+    public void recoverSatisfaction(int recoveryPoints) {
+        if (recoveryPoints < 0) {
+            throw new IllegalArgumentException(
+                    "Recovery points cannot be negative.");
+        }
 
-    public void applyHappyHourRecovery() {
-        for (Customer customer : customers) {
-            customer.recoverSatisfaction(HAPPY_HOUR_RECOVERY);
+        if (isAwaitingService()) {
+            satisfaction += Math.min(
+                    recoveryPoints,
+                    STARTING_SATISFACTION - satisfaction);
         }
     }
 
-    // Reduce satisfaction and handle abandonment
-    public List<Customer> applyEndTurnSatisfactionLoss() {
-
-        List<Customer> newlyAbandonedCustomers = new ArrayList<>();
-
-        for (int i = 0; i < customers.size(); i++) {
-
-            Customer customer = customers.get(i);
-            CustomerStatus status = customer.getStatus();
-
-            boolean isUnserved =
-                    status == CustomerStatus.WAITING
-                    || status == CustomerStatus.SEATED
-                    || status == CustomerStatus.ORDERED;
-
-            if (!isUnserved) {
-                continue;
-            }
-
-
-            customer.decreaseWaitingSatisfaction();
-
-            if (customer.getSatisfaction() == 0) {
-
-                customer.abandon();
-                newlyAbandonedCustomers.add(customer);
-            }
+    public void clearTable() {
+        if (status != CustomerStatus.PAID
+                && status != CustomerStatus.ABANDONED) {
+            throw new IllegalStateException(
+                    "Customer has not left the restaurant.");
         }
 
-        return newlyAbandonedCustomers;
+        assignedTable = null;
+    }
+
+    private boolean isAwaitingService() {
+        return status == CustomerStatus.WAITING
+                || status == CustomerStatus.SEATED
+                || status == CustomerStatus.ORDERED;
     }
 }
