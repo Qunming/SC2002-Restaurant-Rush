@@ -6,6 +6,9 @@ import java.util.List;
 
 public class CustomerManager {
 
+    // Stage 3: Satisfaction recovered during Happy Hour.
+    private static final int HAPPY_HOUR_RECOVERY = 15;
+
     private final List<Customer> customers = new ArrayList<>();
 
     // Register a new customer
@@ -131,6 +134,15 @@ public class CustomerManager {
 
                 customer.markReadyToPay(currentTurn);
             }
+        }
+    }
+
+    // Stage 3: Call once at the start of EACH active Happy Hour turn.
+    // Customer.recoverSatisfaction() checks eligibility and caps at 100.
+    // The GameController decides whether Happy Hour is active.
+    public void applyHappyHourRecovery() {
+        for (Customer customer : customers) {
+            customer.recoverSatisfaction(HAPPY_HOUR_RECOVERY);
         }
     }
 
