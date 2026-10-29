@@ -6,31 +6,28 @@ import java.util.List;
 
 public class CustomerManager {
 
-    // Stage 3: Satisfaction recovered during Happy Hour.
     private static final int HAPPY_HOUR_RECOVERY = 15;
 
     private final List<Customer> customers = new ArrayList<>();
 
-    // Register a new customer
-    // Stage 2: Accepts Regular, VIP and Critic customers.
+    // register a new customer
     public void addCustomer(Customer customer) {
-
         if (customer == null) {
-            throw new IllegalArgumentException("Customer cannot be null");
+            throw new IllegalArgumentException(
+                    "Customer cannot be null");
         }
 
         if (getCustomerById(customer.getId()) != null) {
-            throw new IllegalArgumentException("Customer ID already exists");
+            throw new IllegalArgumentException(
+                    "Customer ID already exists");
         }
 
         customers.add(customer);
     }
 
-    // Find a customer by ID
+    // find a customer by id
     public Customer getCustomerById(int customerId) {
-
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
 
             if (customer.getId() == customerId) {
@@ -41,14 +38,11 @@ public class CustomerManager {
         return null;
     }
 
-    // Get list of customers waiting for a table
-    // Stage 2: All customer types remain in arrival order.
+    // get customers waiting for a table
     public List<Customer> getWaitingCustomers() {
-
         List<Customer> waitingCustomers = new ArrayList<>();
 
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
 
             if (customer.getStatus() == CustomerStatus.WAITING) {
@@ -59,18 +53,16 @@ public class CustomerManager {
         return waitingCustomers;
     }
 
-    // Get list of customers who have not paid or abandoned
+    // get customers who have not paid or abandoned
     public List<Customer> getActiveCustomers() {
-
         List<Customer> activeCustomers = new ArrayList<>();
 
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
             CustomerStatus status = customer.getStatus();
 
-            if (status != CustomerStatus.PAID && status != CustomerStatus.ABANDONED) {
-
+            if (status != CustomerStatus.PAID
+                    && status != CustomerStatus.ABANDONED) {
                 activeCustomers.add(customer);
             }
         }
@@ -78,13 +70,11 @@ public class CustomerManager {
         return activeCustomers;
     }
 
-    // Get list of customers who have paid
+    // get customers who have paid
     public List<Customer> getPaidCustomers() {
-
         List<Customer> paidCustomers = new ArrayList<>();
 
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
 
             if (customer.getStatus() == CustomerStatus.PAID) {
@@ -95,17 +85,13 @@ public class CustomerManager {
         return paidCustomers;
     }
 
-    // Find the oldest customer eligible for payment
+    // find the oldest customer eligible for payment
     public Customer getOldestReadyToPayCustomer(int currentTurn) {
-
         Customer oldestEligibleCustomer = null;
 
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
 
-            // Customer can only make payment at least 1 turn
-            // after their ReadyToPayTurn.
             if (customer.getStatus() != CustomerStatus.READY_TO_PAY
                     || customer.getReadyToPayTurn() >= currentTurn) {
                 continue;
@@ -114,7 +100,6 @@ public class CustomerManager {
             if (oldestEligibleCustomer == null
                     || customer.getReadyToPayTurn()
                     < oldestEligibleCustomer.getReadyToPayTurn()) {
-
                 oldestEligibleCustomer = customer;
             }
         }
@@ -122,37 +107,30 @@ public class CustomerManager {
         return oldestEligibleCustomer;
     }
 
-    // Update customers who have finished eating
+    // update customers who have finished eating
     public void advanceEating(int currentTurn) {
-
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
 
             if (customer.getStatus() == CustomerStatus.SERVED
                     && customer.getServedTurn() < currentTurn) {
-
                 customer.markReadyToPay(currentTurn);
             }
         }
     }
 
-    // Stage 3: Call once at the start of EACH active Happy Hour turn.
-    // Customer.recoverSatisfaction() checks eligibility and caps at 100.
-    // The GameController decides whether Happy Hour is active.
+    // stage 3: recover satisfaction during happy hour
     public void applyHappyHourRecovery() {
         for (Customer customer : customers) {
             customer.recoverSatisfaction(HAPPY_HOUR_RECOVERY);
         }
     }
 
-    // Reduce satisfaction and handle abandonment
+    // reduce satisfaction and handle abandonment
     public List<Customer> applyEndTurnSatisfactionLoss() {
-
         List<Customer> newlyAbandonedCustomers = new ArrayList<>();
 
         for (int i = 0; i < customers.size(); i++) {
-
             Customer customer = customers.get(i);
             CustomerStatus status = customer.getStatus();
 
@@ -165,15 +143,9 @@ public class CustomerManager {
                 continue;
             }
 
-            // Stage 2: Polymorphism
-            // Regular: -8
-            // VIP:     -5
-            // Critic: -12
-            // Customer determines its own satisfaction loss.
             customer.decreaseWaitingSatisfaction();
 
             if (customer.getSatisfaction() == 0) {
-
                 customer.abandon();
                 newlyAbandonedCustomers.add(customer);
             }
