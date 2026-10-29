@@ -14,20 +14,17 @@ import order.OrderStatus;
 import restaurant.Table;
 import staff.Cashier;
 import staff.Chef;
+import staff.Host;
 import staff.Waiter;
 import ui.ConsoleUI;
 import ui.InputHandler;
 
-/**
- * Coordinates the 18-turn restaurant game.
- * Stage 2 adds customer types without changing
- * the Stage 1 turn sequence.
- */
 public class GameController {
     private final GameState gameState;
     private final ConsoleUI consoleUI;
     private final InputHandler inputHandler;
     private final Waiter waiter;
+    private final Host host;
     private final Chef chef;
     private final Cashier cashier;
 
@@ -35,11 +32,12 @@ public class GameController {
 
     public GameController(GameState gameState, ConsoleUI consoleUI,
                           InputHandler inputHandler, Waiter waiter,
-                          Chef chef, Cashier cashier) {
+                          Host host, Chef chef, Cashier cashier) {
         this.gameState = Objects.requireNonNull(gameState, "gameState");
         this.consoleUI = Objects.requireNonNull(consoleUI, "consoleUI");
         this.inputHandler = Objects.requireNonNull(inputHandler, "inputHandler");
         this.waiter = Objects.requireNonNull(waiter, "waiter");
+        this.host = Objects.requireNonNull(host, "host");
         this.chef = Objects.requireNonNull(chef, "chef");
         this.cashier = Objects.requireNonNull(cashier, "cashier");
     }
@@ -47,6 +45,7 @@ public class GameController {
     public void run() {
         while (gameState.getCurrentTurn() <= GameConfig.MAX_TURNS) {
             waiter.resetForNewTurn();
+            host.resetForNewTurn();
             chef.resetForNewTurn();
             playTurn();
 
@@ -58,41 +57,117 @@ public class GameController {
         consoleUI.showFinalResult(gameState, hasWon());
     }
 
+    // turn sequence
     public void playTurn() {
         int currentTurn = gameState.getCurrentTurn();
 
         if (GameConfig.isArrivalTurn(currentTurn)) {
-            // Stage 2: Replace two regular arrivals with VIP and Critic.
             int customerId = nextCustomerId++;
-
             gameState.getCustomerManager().addCustomer(
                     createArrivingCustomer(customerId));
         }
 
+        handleHappyHourChoice();
+
+        if (gameState.isHappyHourActive()) {
+            gameState.getCustomerManager().applyHappyHourRecovery();
+        }
+
         consoleUI.showStartOfTurn(gameState, waiter, chef);
+        showHappyHourStatus();
+        handleHostChoice();
         handleWaiterChoice();
         handleChefChoice();
         processEndOfTurn();
         consoleUI.showEndOfTurn(gameState);
     }
 
-    /**
-     * Stage 2: Reproducible customer arrival mix.
-     * Satisfaction loss, discounts and food preferences
-     * remain in the individual customer classes.
-     */
+    // happy hour activation
+    public void handleHappyHourChoice() {
+        if (!gameState.canActivateHappyHour()) {
+            return;
+        }
+
+        int choice = inputHandler.readHappyHourChoice();
+
+        if (choice == 1) {
+            gameState.activateHappyHour();
+            consoleUI.showMessage(
+                    "Happy Hour activated for this turn and next turn.");
+        }
+    }
+
+    private void showHappyHourStatus() {
+        if (gameState.isHappyHourActive()) {
+            int remaining = gameState.getHappyHourTurnsRemaining();
+
+            consoleUI.showMessage("Happy Hour ACTIVE: " + remaining
+                    + " turn(s) remaining (including this turn)."
+                    + " New orders: 20% off; unserved customers: +15 satisfaction.");
+
+        } else if (gameState.hasHappyHourBeenUsed()) {
+            consoleUI.showMessage(
+                    "Happy Hour has ended and cannot be activated again.");
+
+        } else {
+            consoleUI.showMessage(
+                    "Happy Hour is available to activate on a later turn.");
+        }
+    }
+
+    // host action
+    public void handleHostChoice() {
+        while (true) {
+            List<Integer> seatIds = eligibleSeatCustomerIds();
+            String seatReason = seatUnavailableReason();
+            int choice = inputHandler.readHostChoice(seatIds);
+
+            try {
+                switch (choice) {
+                    case 1: {
+                        requireEligible(seatIds, seatReason);
+
+                        int customerId = inputHandler.readTargetId(
+                                "customer", seatIds);
+
+                        host.seatCustomer(customerId, gameState);
+
+                        consoleUI.showMessage(
+                                "Host seated Customer #" + customerId + ".");
+                        return;
+                    }
+
+                    case 2:
+                        host.waitThisTurn();
+                        consoleUI.showMessage("Host waits this turn.");
+                        return;
+
+                    default:
+                        throw new IllegalArgumentException(
+                                "Choose a Host action from 1 to 2.");
+                }
+
+            } catch (IllegalArgumentException | IllegalStateException ex) {
+                consoleUI.showError(ex.getMessage()
+                        + " No Host task was used; please choose again.");
+            }
+        }
+    }
+
     private Customer createArrivingCustomer(int customerId) {
         switch (customerId) {
             case 2:
                 return new VIPCustomer(customerId);
+
             case 4:
                 return new CriticCustomer(customerId);
+
             default:
                 return new RegularCustomer(customerId);
         }
     }
 
-    /** Waiter choices with eligible customer and order IDs. */
+    // waiter action
     public void handleWaiterChoice() {
         while (true) {
             List<Integer> seatIds = eligibleSeatCustomerIds();
@@ -132,7 +207,6 @@ public class GameController {
 
                         Order placed = customer.getOrder();
 
-                        // Stage 2: Show final bill including VIP discount.
                         consoleUI.showMessage(
                                 customer.getCustomerType()
                                 + " Customer #" + customerId
@@ -161,19 +235,18 @@ public class GameController {
 
                     case 4:
                         waiter.waitThisTurn();
-                        consoleUI.showMessage(
-                                "Waiter waits this turn.");
+                        consoleUI.showMessage("Waiter waits this turn.");
                         return;
 
                     case 5:
                         consoleUI.showHistory(gameState);
-                        // Viewing history does not consume a staff action.
                         break;
 
                     default:
                         throw new IllegalArgumentException(
                                 "Choose a Waiter action from 1 to 5.");
                 }
+
             } catch (IllegalArgumentException | IllegalStateException ex) {
                 consoleUI.showError(ex.getMessage()
                         + " No staff task was used; please choose again.");
@@ -181,11 +254,7 @@ public class GameController {
         }
     }
 
-    /**
-     * Chef choices refresh after the Waiter acts.
-     * This allows the Chef to prepare an order
-     * placed during the same turn.
-     */
+    // chef action
     public void handleChefChoice() {
         while (true) {
             List<Integer> prepareIds = eligiblePrepareOrderIds();
@@ -203,21 +272,20 @@ public class GameController {
                         chef.prepareOrder(orderId, gameState);
 
                         consoleUI.showMessage(
-                                "Prepared one unit of Order #"
-                                + orderId + ".");
+                                "Prepared one unit of Order #" + orderId + ".");
                         return;
                     }
 
                     case 2:
                         chef.waitThisTurn();
-                        consoleUI.showMessage(
-                                "Chef waits this turn.");
+                        consoleUI.showMessage("Chef waits this turn.");
                         return;
 
                     default:
                         throw new IllegalArgumentException(
                                 "Choose a Chef action from 1 to 2.");
                 }
+
             } catch (IllegalArgumentException | IllegalStateException ex) {
                 consoleUI.showError(ex.getMessage()
                         + " No staff task was used; please choose again.");
@@ -256,7 +324,6 @@ public class GameController {
                 ids.add(customer.getId());
             }
         }
-
         return ids;
     }
 
@@ -270,7 +337,6 @@ public class GameController {
                 ids.add(customer.getId());
             }
         }
-
         return ids;
     }
 
@@ -282,11 +348,9 @@ public class GameController {
                     && order.getReadyTurn() < gameState.getCurrentTurn()
                     && order.getCustomer().getStatus()
                             == CustomerStatus.ORDERED) {
-
                 ids.add(order.getId());
             }
         }
-
         return ids;
     }
 
@@ -296,37 +360,26 @@ public class GameController {
         for (Order order : gameState.getOrderManager().getOrders()) {
             if (order.getStatus() == OrderStatus.PLACED
                     || order.getStatus() == OrderStatus.PREPARING) {
-
                 ids.add(order.getId());
             }
         }
-
         return ids;
     }
 
-    /**
-     * Existing Stage 1 timing, cashier and
-     * abandonment logic is unchanged.
-     */
+    // end of turn
     public void processEndOfTurn() {
         int currentTurn = gameState.getCurrentTurn();
 
         gameState.getCustomerManager().advanceEating(currentTurn);
 
-        cashier.processOldestEligiblePayment(
-                gameState, currentTurn);
+        cashier.processOldestEligiblePayment(gameState, currentTurn);
 
-        List<Customer> newlyAbandoned =
-                gameState.getCustomerManager()
-                        .applyEndTurnSatisfactionLoss();
+        List<Customer> newlyAbandoned = gameState.getCustomerManager()
+                .applyEndTurnSatisfactionLoss();
 
         for (Customer customer : newlyAbandoned) {
-            gameState.getOrderManager()
-                    .cancelUnpaidOrderFor(customer);
-
-            gameState.getTableManager()
-                    .releaseTable(customer);
-
+            gameState.getOrderManager().cancelUnpaidOrderFor(customer);
+            gameState.getTableManager().releaseTable(customer);
             gameState.recordAbandonment();
         }
     }
