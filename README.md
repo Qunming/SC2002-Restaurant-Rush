@@ -19,7 +19,7 @@ https://github.com/Qunming/SC2002-Restaurant-Rush
 |---|---|---|---|
 | Stage 1 | Basic Restaurant Operation | `stage-1` | Tagged |
 | Stage 2 | Customer Behaviour Extension | `stage-2` | Tagged |
-| Stage 3 | Host, ComboMeal and Happy Hour | `main`, planned `stage-3` | Implemented; release tag pending |
+| Stage 3 | Host, ComboMeal and Happy Hour | `stage-3` | Tagged |
 
 Each stage builds upon the previous implementation while preserving its existing functionality.
 
