@@ -28,7 +28,7 @@ public class VIPCustomer extends Customer {
         return VIP_DISCOUNT_PERCENT;
     }
 
-    // Stage 4: VIP customers expect PERFECT food
+    // Addtional Feature: VIP customers expect PERFECT food
     @Override
     public FeedbackType getFeedbackType(CookingQuality quality) {
 
