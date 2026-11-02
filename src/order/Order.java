@@ -4,7 +4,6 @@ package order;
 import customer.Customer;
 import menu.MenuItem;
 
-// Stores an order's details and preparation progress
 public class Order {
 
     private final int id;
@@ -18,35 +17,49 @@ public class Order {
     private int readyTurn = -1;
     private int servedTurn = -1;
 
-    // Constructor
+    // original constructor for orders without happy hour
     public Order(int id, Customer customer, MenuItem menuItem) {
+        this(id, customer, menuItem, false);
+    }
+
+    // stage 3: constructor supporting happy hour
+    public Order(int id, Customer customer, MenuItem menuItem,
+                 boolean happyHourActive) {
         if (id <= 0) {
             throw new IllegalArgumentException(
-                "Order ID must be positive.");
+                    "Order ID must be positive.");
         }
 
         if (customer == null || menuItem == null) {
             throw new IllegalArgumentException(
-                "Customer and menu item cannot be null.");
+                    "Customer and menu item cannot be null.");
         }
 
         this.id = id;
         this.customer = customer;
         this.menuItem = menuItem;
 
-        // Apply the customer's discount and fix the price
         int discountPercent = customer.getDiscountPercent();
 
         if (discountPercent < 0 || discountPercent > 100) {
             throw new IllegalArgumentException(
-                "Discount must be between 0 and 100.");
+                    "Discount must be between 0 and 100.");
         }
 
-        this.priceCents = (menuItem.getPriceCents()
+        // apply vip discount first
+        long finalPrice = (
+                (long) menuItem.getPriceCents()
                 * (100 - discountPercent) + 50) / 100;
+
+        // apply happy hour discount after vip discount
+        if (happyHourActive) {
+            finalPrice = (finalPrice * 80 + 50) / 100;
+        }
+
+        // lock the final price when the order is created
+        this.priceCents = Math.toIntExact(finalPrice);
     }
 
-    // Getters
     public int getId() {
         return id;
     }
@@ -75,28 +88,26 @@ public class Order {
         return servedTurn;
     }
 
-    // Calculate remaining cooking units
     public int getRemainingPreparationUnits() {
         return menuItem.getPreparationUnits()
                 - completedPreparationUnits;
     }
 
-    // Chef prepares one unit per action
+    // chef prepares one unit per action
     public void prepareOneUnit(int currentTurn) {
         if (currentTurn < 1) {
             throw new IllegalArgumentException(
-                "Turn number must be positive.");
+                    "Turn number must be positive.");
         }
 
         if (status != OrderStatus.PLACED
                 && status != OrderStatus.PREPARING) {
             throw new IllegalStateException(
-                "Only placed or preparing orders can be cooked.");
+                    "Only placed or preparing orders can be cooked.");
         }
 
         completedPreparationUnits++;
 
-        // Check whether all cooking units are completed
         if (getRemainingPreparationUnits() == 0) {
             status = OrderStatus.READY;
             readyTurn = currentTurn;
@@ -105,45 +116,44 @@ public class Order {
         }
     }
 
-    // Waiter serves the order
+    // waiter serves the order
     public void markServed(int currentTurn) {
         if (currentTurn < 1) {
             throw new IllegalArgumentException(
-                "Turn number must be positive.");
+                    "Turn number must be positive.");
         }
 
         if (status != OrderStatus.READY) {
             throw new IllegalStateException(
-                "Only ready orders can be served.");
+                    "Only ready orders can be served.");
         }
 
-        // The order must be ready before the current turn
         if (currentTurn <= readyTurn) {
             throw new IllegalStateException(
-                "Order must be ready from an earlier turn.");
+                    "Order must be ready from an earlier turn.");
         }
 
         status = OrderStatus.SERVED;
         servedTurn = currentTurn;
     }
 
-    // Mark order as paid after Cashier processes payment
+    // mark order as paid
     public void markPaid() {
         if (status != OrderStatus.SERVED) {
             throw new IllegalStateException(
-                "Only served orders can be paid.");
+                    "Only served orders can be paid.");
         }
 
         status = OrderStatus.PAID;
     }
 
-    // Cancel an unserved order when customer abandons
+    // cancel an unserved order
     public void cancel() {
         if (status != OrderStatus.PLACED
                 && status != OrderStatus.PREPARING
                 && status != OrderStatus.READY) {
             throw new IllegalStateException(
-                "Only unserved orders can be cancelled.");
+                    "Only unserved orders can be cancelled.");
         }
 
         status = OrderStatus.CANCELLED;
