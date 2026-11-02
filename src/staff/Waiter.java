@@ -7,7 +7,6 @@ import customer.CustomerStatus;
 import order.Order;
 import order.OrderStatus;
 
-/** member 4: one valid seat / take order / serve / wait per turn. */
 public class Waiter {
     private boolean actedThisTurn = false;
 
@@ -23,27 +22,34 @@ public class Waiter {
     // seat a waiting customer at an available table
     public void seatCustomer(int customerId, GameState gameState) {
         if (gameState == null) {
-            throw new IllegalArgumentException("Game state cannot be null.");
+            throw new IllegalArgumentException(
+                    "Game state cannot be null.");
         }
+
         if (actedThisTurn) {
-            throw new IllegalStateException("Waiter has already acted this turn.");
+            throw new IllegalStateException(
+                    "Waiter has already acted this turn.");
         }
 
         Customer customer = gameState.getCustomerManager()
-                                     .getCustomerById(customerId);
+                .getCustomerById(customerId);
 
         if (customer == null) {
-            throw new IllegalArgumentException("Customer not found.");
-        }
-        if (customer.getStatus() != CustomerStatus.WAITING) {
-            throw new IllegalStateException("Customer is not waiting.");
+            throw new IllegalArgumentException(
+                    "Customer not found.");
         }
 
-        // use the table manager to seat the customer
-        boolean seated = gameState.getTableManager().seatCustomer(customer);
+        if (customer.getStatus() != CustomerStatus.WAITING) {
+            throw new IllegalStateException(
+                    "Customer is not waiting.");
+        }
+
+        boolean seated = gameState.getTableManager()
+                .seatCustomer(customer);
 
         if (!seated) {
-            throw new IllegalStateException("No available table.");
+            throw new IllegalStateException(
+                    "No available table.");
         }
 
         actedThisTurn = true;
@@ -52,25 +58,34 @@ public class Waiter {
     // take an order from a seated customer
     public void takeOrder(int customerId, GameState gameState) {
         if (gameState == null) {
-            throw new IllegalArgumentException("Game state cannot be null.");
+            throw new IllegalArgumentException(
+                    "Game state cannot be null.");
         }
+
         if (actedThisTurn) {
-            throw new IllegalStateException("Waiter has already acted this turn.");
+            throw new IllegalStateException(
+                    "Waiter has already acted this turn.");
         }
 
         Customer customer = gameState.getCustomerManager()
-                                     .getCustomerById(customerId);
+                .getCustomerById(customerId);
 
         if (customer == null) {
-            throw new IllegalArgumentException("Customer not found.");
-        }
-        if (customer.getStatus() != CustomerStatus.SEATED) {
-            throw new IllegalStateException("Customer must be seated first.");
+            throw new IllegalArgumentException(
+                    "Customer not found.");
         }
 
-        // let the customer choose their food automatically
+        if (customer.getStatus() != CustomerStatus.SEATED) {
+            throw new IllegalStateException(
+                    "Customer must be seated first.");
+        }
+
+        // apply happy hour pricing when the order is taken
         gameState.getOrderManager().createOrder(
-                customer, gameState.getMenu());
+                customer,
+                gameState.getMenu(),
+                gameState.isHappyHourActive()
+        );
 
         actedThisTurn = true;
     }
@@ -78,17 +93,23 @@ public class Waiter {
     // serve an order that was ready before this turn
     public void serveOrder(int orderId, GameState gameState) {
         if (gameState == null) {
-            throw new IllegalArgumentException("Game state cannot be null.");
-        }
-        if (actedThisTurn) {
-            throw new IllegalStateException("Waiter has already acted this turn.");
+            throw new IllegalArgumentException(
+                    "Game state cannot be null.");
         }
 
-        Order order = gameState.getOrderManager().getOrderById(orderId);
+        if (actedThisTurn) {
+            throw new IllegalStateException(
+                    "Waiter has already acted this turn.");
+        }
+
+        Order order = gameState.getOrderManager()
+                .getOrderById(orderId);
 
         if (order == null) {
-            throw new IllegalArgumentException("Order not found.");
+            throw new IllegalArgumentException(
+                    "Order not found.");
         }
+
         if (order.getStatus() != OrderStatus.READY
                 || order.getReadyTurn() >= gameState.getCurrentTurn()) {
             throw new IllegalStateException(
@@ -98,7 +119,8 @@ public class Waiter {
         Customer customer = order.getCustomer();
 
         if (customer.getStatus() != CustomerStatus.ORDERED) {
-            throw new IllegalStateException("Customer cannot be served yet.");
+            throw new IllegalStateException(
+                    "Customer cannot be served yet.");
         }
 
         // update the order and customer after serving
@@ -112,7 +134,8 @@ public class Waiter {
     // use the waiter's action to wait
     public void waitThisTurn() {
         if (actedThisTurn) {
-            throw new IllegalStateException("Waiter has already acted this turn.");
+            throw new IllegalStateException(
+                    "Waiter has already acted this turn.");
         }
 
         actedThisTurn = true;
