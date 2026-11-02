@@ -1,11 +1,9 @@
 
 package customer;
 
-/**
- * Stage 2: VIP customer.
- * VIP customers lose less satisfaction while waiting
- * and receive a 10% discount on their orders.
- */
+import feedback.FeedbackType;
+import order.CookingQuality;
+
 public class VIPCustomer extends Customer {
 
     private static final int VIP_SATISFACTION_LOSS = 5;
@@ -15,21 +13,44 @@ public class VIPCustomer extends Customer {
         super(id);
     }
 
-    // Identify this customer as VIP.
     @Override
     public String getCustomerType() {
         return "VIP";
     }
 
-    // VIP customers lose only 5 satisfaction per unserved turn.
     @Override
     public int getWaitingSatisfactionLoss() {
         return VIP_SATISFACTION_LOSS;
     }
 
-    // VIP customers receive a 10% discount.
     @Override
     public int getDiscountPercent() {
         return VIP_DISCOUNT_PERCENT;
+    }
+
+    // Stage 4: VIP customers expect PERFECT food
+    @Override
+    public FeedbackType getFeedbackType(CookingQuality quality) {
+
+        if (quality == null) {
+            throw new IllegalArgumentException(
+                    "Cooking quality cannot be null.");
+        }
+
+        if (quality == CookingQuality.PERFECT) {
+            return FeedbackType.GOOD;
+        }
+
+        return FeedbackType.BAD;
+    }
+
+    @Override
+    public String getFeedbackComment(CookingQuality quality) {
+
+        if (getFeedbackType(quality) == FeedbackType.GOOD) {
+            return "Excellent preparation!";
+        }
+
+        return "Disappointing. I expected better quality.";
     }
 }
