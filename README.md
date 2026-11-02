@@ -1,87 +1,87 @@
+# SC2002 Restaurant Rush — Stage 3
 
-# SC2002 Restaurant Rush — Stage 2
+A command-line, turn-based restaurant management game developed in Java for the SC2002 Object-Oriented Design & Programming group assignment.
 
-A turn-based restaurant management game developed in Java using object-oriented programming (OOP).
+The player acts as a restaurant manager, making decisions about seating, order handling, food preparation, customer satisfaction and revenue.
 
-The player acts as a restaurant manager, deciding which customers to serve and which orders to prepare while managing limited staff resources.
-
-Stage 2 extends the original Stage 1 implementation by introducing different customer types with unique behaviours through inheritance and polymorphism.
+Stage 3 extends the existing Stage 2 implementation by introducing three features: **Host**, **ComboMeal**, and **Happy Hour**. All core Stage 1 and Stage 2 gameplay rules are retained.
 
 ## 1. Repository Information
 
-Repository:
+**GitHub Repository:**  
 https://github.com/Qunming/SC2002-Restaurant-Rush
 
-Development branch:
-`stage-2-dev`
+**Development Branch:** `main`
 
-Completed releases:
-- Stage 1: Basic Restaurant Operation (`stage-1`)
-- Stage 2: Customer Behaviour Extension (in development)
-- Stage 3: New Role and Menu Policy (not implemented yet)
+### Stage Releases
 
-Each stage builds upon the previous implementation while preserving existing functionality.
+| Stage | Features | Git Reference | Status |
+|---|---|---|---|
+| Stage 1 | Basic Restaurant Operation | `stage-1` | Tagged |
+| Stage 2 | Customer Behaviour Extension | `stage-2` | Tagged |
+| Stage 3 | Host, ComboMeal and Happy Hour | `main`, planned `stage-3` | Implemented; release tag pending |
 
----
+Each stage builds upon the previous implementation while preserving its existing functionality.
+
+Each tagged stage is intended to compile and run independently.
 
 ## 2. System Requirements
 
-- Java 21 or later
-- Windows Command Prompt or PowerShell
+- Java Development Kit (JDK) 21 or later
+- Windows PowerShell or Command Prompt
 - No external Java libraries required
 - No internet connection required during gameplay
 
-### Compile and Run
+### Clone the Repository
 
-Clone the repository:
-
-```bash
+```powershell
 git clone https://github.com/Qunming/SC2002-Restaurant-Rush.git
-```
-
-Navigate into the project:
-
-```bash
 cd SC2002-Restaurant-Rush
 ```
 
-Switch to Stage 2:
+If the repository is already cloned, open the existing project folder.
 
-```bash
-git switch stage-2-dev
+### Compile and Run Stage 3
+
+Switch to the main branch:
+
+```powershell
+git switch main
 ```
 
-### Option 1: Compile Using the Existing Script
+Compile and run:
 
-```cmd
-.\compile_stage1.cmd
-java -cp build app.Main
-```
-
-The existing compilation script also works for Stage 2.
-
-### Option 2: Compile Manually
-
-```cmd
+```powershell
 javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
 java -cp build app.Main
 ```
 
-The compiled Java files are stored in the `build` directory and excluded from Git.
+Compiled `.class` files are generated inside the `build` directory.
 
-To disable terminal colours:
+### Run an Earlier Stage
 
-```cmd
-java -DnoColor=true -cp build app.Main
+Stage 1 and Stage 2 can be accessed using their respective Git tags.
+
+For example, to run Stage 2:
+
+```powershell
+javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
+java -cp build app.Main
 ```
 
----
+Return to the main branch:
+
+```powershell
+git switch main
+```
+
+Local changes should be committed or saved before switching Git references.
 
 ## 3. Game Overview
 
-The game consists of 18 turns.
+Restaurant Rush is a turn-based restaurant management simulation consisting of **18 turns**.
 
-The player must manage customer satisfaction, restaurant revenue, seating arrangements, and staff workload.
+The player must manage customer satisfaction, restaurant revenue, seating arrangements and staff workload.
 
 ### Base Game Configuration
 
@@ -90,122 +90,142 @@ The player must manage customer satisfaction, restaurant revenue, seating arrang
 | Maximum turns | 18 |
 | Tables | 2 |
 | Waiters | 1 |
+| Hosts | 1 (Stage 3) |
 | Chefs | 1 |
 | Cashiers | 1 |
 | Total customer arrivals | 6 |
 | Arrival turns | 1, 4, 7, 10, 13, 16 |
+| Starting satisfaction | 100 |
 
-Each customer begins with 100 satisfaction points.
+Customers who are still waiting for a table or food lose satisfaction at the end of each turn.
 
-Customers who have not been served lose satisfaction at the end of each turn.
-
-If satisfaction reaches zero, the customer abandons the restaurant without paying.
+When satisfaction reaches zero, the customer abandons the restaurant without paying.
 
 ### Victory Conditions
 
 The player wins only if all three conditions are satisfied at the end of Turn 18:
 
-1. At least 4 customers have paid.
-2. Total revenue is at least $45.00.
-3. Average satisfaction of paid customers is at least 60.
+1. At least **4 customers** have paid.
+2. Total revenue is at least **$45.00**.
+3. Average satisfaction of paid customers is at least **60**.
 
 Otherwise, the game ends in defeat.
 
-The game always continues through all 18 turns.
-
----
+The game continues through all 18 turns.
 
 ## 4. Menu
 
-The restaurant offers three food items.
+Stage 3 expands the original menu by introducing a ComboMeal.
 
 | Menu Item | Price | Preparation Units |
-|---|---|---|
+|---|---:|---:|
 | Salad | $9.00 | 1 |
 | Burger | $15.00 | 1 |
 | Pasta | $18.00 | 2 |
+| Salad + Pasta Combo | $24.30 | 3 |
 
-Customers choose their own food automatically.
+### ComboMeal
 
-The restaurant manager does not select the food.
+The `ComboMeal` class combines two existing menu items.
 
-Regular and VIP customers use a deterministic selection rule based on their customer ID.
+Its rules are:
 
-The menu order is Salad, Burger, Pasta, repeating according to the customer ID.
+- The combined preparation units equal the sum of both items.
+- The combo price equals 90% of the combined prices, rounded to the nearest cent.
 
-Critic customers use a different ordering preference, described below.
+Example:
 
----
+```text
+Salad:                $9.00
+Pasta:               $18.00
+Combined price:      $27.00
+Combo discount:         10%
+Final combo price:   $24.30
 
-## 5. Stage 2: Customer Behaviour Extension
+Salad preparation:       1
+Pasta preparation:       2
+Total preparation:       3
+```
 
-Stage 2 introduces inheritance and polymorphism to support multiple customer types without rewriting the existing game logic.
+`ComboMeal` extends `MenuItem`, allowing it to reuse the existing order, preparation, serving and payment workflow.
 
-Three customer types are available:
+### Customer Food Selection
 
-- RegularCustomer
-- VIPCustomer
-- CriticCustomer
+Customers choose their food automatically. The restaurant manager does not select the dishes.
 
-All customer types inherit from the existing `Customer` class.
+Regular and VIP customers use the deterministic selection rule:
+
+```java
+(customerId - 1) % menu.getItems().size()
+```
+
+The Stage 3 menu order is:
+
+1. Salad
+2. Burger
+3. Pasta
+4. Salad + Pasta Combo
+
+Critic customers select the most expensive available menu item.
+
+In Stage 3, the Critic selects the Salad + Pasta Combo ($24.30).
+
+This deterministic selection behaviour is a documented team design decision.
+
+## 5. Customer Behaviour
+
+Stage 3 preserves the customer types introduced in Stage 2.
+
+The three customer types are:
+
+- `RegularCustomer`
+- `VIPCustomer`
+- `CriticCustomer`
+
+All three inherit from the `Customer` superclass.
 
 ### Customer Behaviour Comparison
 
-| Customer Type | Satisfaction Loss | Discount | Special Behaviour |
-|---|---|---|---|
-| Regular | 8 per turn | None | Standard food selection |
-| VIP | 5 per turn | 10% | Standard food selection |
-| Critic | 12 per turn | None | Selects the most expensive dish |
+| Customer Type | Satisfaction Loss Per Unserved Turn | Discount | Food Preference |
+|---|---:|---:|---|
+| Regular | 8 | None | Deterministic selection |
+| VIP | 5 | 10% | Deterministic selection |
+| Critic | 12 | None | Most expensive menu item |
 
 ### Regular Customer
 
 Regular customers retain the original Stage 1 behaviour.
 
-- Start with 100 satisfaction.
-- Lose 8 satisfaction per unserved turn.
-- Pay the full menu price.
-- Choose food according to the deterministic ID-based rule.
+They begin with 100 satisfaction, lose 8 satisfaction per unserved turn and pay the normal menu price unless Happy Hour is active when the order is placed.
 
 ### VIP Customer
 
-VIP customers are more patient and receive discounted meals.
-
-- Start with 100 satisfaction.
-- Lose 5 satisfaction per unserved turn.
-- Receive a 10% discount on their order.
-- Follow the same seating, ordering, cooking, serving and payment process.
+VIP customers lose 5 satisfaction per unserved turn and receive a 10% discount.
 
 Example:
 
-A VIP customer ordering a Burger pays:
-
 ```text
-Original price: $15.00
-VIP discount:   10%
-Final bill:     $13.50
+Burger price:       $15.00
+VIP discount:          10%
+Final bill:         $13.50
 ```
 
-The discounted price is calculated and locked when the order is created.
+During Happy Hour, an additional 20% discount is applied after the VIP discount.
 
 ### Critic Customer
 
-Critic customers are less patient and have a distinct food preference.
+Critic customers lose 12 satisfaction per unserved turn.
 
-- Start with 100 satisfaction.
-- Lose 12 satisfaction per unserved turn.
-- Pay the full menu price.
-- Automatically select the most expensive available menu item.
+They automatically select the most expensive menu item.
 
-With the current menu, Critic customers choose Pasta ($18.00).
+With Stage 3's menu, Critic customers choose the Salad + Pasta Combo.
 
-This preference is implemented by overriding `chooseMenuItem()` in `CriticCustomer`.
+### Customer Arrivals
 
-### Stage 2 Customer Arrivals
-
-The game uses a fixed customer-type sequence to make testing reproducible.
+The game uses a fixed customer sequence to ensure reproducible gameplay.
 
 | Turn | Customer ID | Customer Type |
-|---|---|---|
+|---|---:|---|
 | 1 | 1 | Regular |
 | 4 | 2 | VIP |
 | 7 | 3 | Regular |
@@ -213,15 +233,114 @@ The game uses a fixed customer-type sequence to make testing reproducible.
 | 13 | 5 | Regular |
 | 16 | 6 | Regular |
 
-The total number of arrivals remains six.
+All customer types share the same seating, ordering, preparation, serving and payment workflow.
 
-This ensures every game includes at least one VIP and one Critic customer.
+## 6. Stage 3 Features
 
----
+### 6.1 Host
 
-## 6. Game Turn Sequence
+Stage 3 introduces a new staff member called the Host.
 
-Each turn follows the original Stage 1 sequence.
+The Host may seat at most one waiting customer per turn, independently of the Waiter.
+
+The Waiter retains all existing actions.
+
+Example of actions during the same turn:
+
+1. The Host seats Customer #1.
+2. The Waiter takes Customer #1's order.
+3. The Chef prepares one unit of the order.
+
+The Host uses the existing `TableManager` to assign tables.
+
+This prevents multiple customers from occupying the same table.
+
+The Host cannot seat a customer when all tables are occupied or when the Host has already acted during the turn.
+
+### 6.2 ComboMeal
+
+`ComboMeal` extends the existing `MenuItem` class.
+
+It stores references to two menu items and calculates their combined price and preparation units.
+
+The implemented combo contains:
+
+- Salad
+- Pasta
+
+The Chef still prepares one unit per turn.
+
+The Salad + Pasta Combo requires three preparation actions.
+
+A ComboMeal uses the same order statuses and payment workflow as other menu items.
+
+### 6.3 Happy Hour
+
+Happy Hour is a temporary promotional policy controlled by the player.
+
+The player may activate Happy Hour once per game at the start of a turn.
+
+After activation, Happy Hour remains active during:
+
+- The activation turn
+- The following turn
+
+It cannot be activated again later.
+
+#### Happy Hour Benefits
+
+While Happy Hour is active:
+
+- Newly placed orders receive an additional 20% discount.
+- Eligible waiting customers recover 15 satisfaction at the beginning of each active turn.
+- Satisfaction cannot exceed 100.
+- The remaining Happy Hour duration is displayed.
+
+Satisfaction recovery applies only to customers with these statuses:
+
+- `WAITING`
+- `SEATED`
+- `ORDERED`
+
+Customers already served, ready to pay, paid or abandoned do not receive satisfaction recovery.
+
+#### Discount Calculation
+
+When multiple discounts apply, the calculation follows this order:
+
+1. ComboMeal discount is already included in the combo price.
+2. VIP discount is applied.
+3. Happy Hour discount is applied.
+
+Example: VIP ordering Burger during Happy Hour.
+
+```text
+Burger price:           $15.00
+VIP discount (10%):     $13.50
+Happy Hour (20%):       $10.80
+
+Final bill:             $10.80
+```
+
+Example: VIP ordering ComboMeal during Happy Hour.
+
+```text
+ComboMeal price:        $24.30
+VIP discount (10%):     $21.87
+Happy Hour (20%):       $17.50
+
+Final bill:             $17.50
+```
+
+Prices are stored as integer cents and rounded after each discount calculation.
+
+The final price is fixed when an order is created.
+
+Orders placed before Happy Hour do not receive a retroactive discount.
+
+## 7. Game Turn Sequence
+
+Stage 3 preserves the original game workflow while introducing Happy Hour and Host actions.
 
 ### Step 1: Customer Arrival
 
@@ -229,49 +348,72 @@ A new customer arrives on a scheduled turn.
 
 The customer joins the waiting queue with 100 satisfaction.
 
-### Step 2: Waiter Action
+### Step 2: Happy Hour Activation
 
-The Waiter may perform at most one action:
+If Happy Hour has not been used, the player may activate it or save it for a later turn.
+
+If Happy Hour is active, eligible customers recover 15 satisfaction.
+
+### Step 3: Restaurant Status
+
+The game displays the current restaurant statistics, available tables, waiting customers, orders and Happy Hour status.
+
+### Step 4: Host Action
+
+The Host may:
+
+1. Seat one waiting customer.
+2. Wait.
+
+The Host performs at most one task per turn.
+
+### Step 5: Waiter Action
+
+The Waiter may:
 
 1. Seat a waiting customer.
 2. Take an order from a seated customer.
-3. Serve an order that is ready.
+3. Serve a ready order.
 4. Wait.
 
-The player may also view order history without consuming a staff action.
+The Waiter performs at most one task per turn.
 
-### Step 3: Chef Action
+Viewing order history does not consume the Waiter's action.
+
+### Step 6: Chef Action
 
 The Chef may:
 
 1. Prepare one unit of an eligible order.
 2. Wait.
 
-The Chef may prepare an order taken by the Waiter during the same turn.
+The Chef may prepare an order placed earlier during the same turn.
 
-An order becomes READY once all required preparation units are completed.
+An order becomes `READY` after all required preparation units are completed.
 
-An order that becomes READY during the current turn cannot be served until a later turn.
+An order cannot be served on the same turn that it becomes `READY`.
 
-### Step 4: Eating and Payment
+### Step 7: Eating and Payment
 
-A customer served on an earlier turn becomes READY_TO_PAY after completing an eating turn.
+Customers served on an earlier turn may become `READY_TO_PAY`.
 
 The Cashier automatically processes at most one eligible payment per turn.
 
-Payment is collected no earlier than the turn after the customer becomes READY_TO_PAY.
+The Cashier prioritizes the oldest eligible customer.
 
-Once payment is completed:
+Customers cannot pay during the same turn they become `READY_TO_PAY`.
 
-- The customer is marked PAID.
-- The order is marked PAID.
-- The final order price is added to revenue.
+After successful payment:
+
+- The customer becomes `PAID`.
+- The order becomes `PAID`.
+- The locked final price is added to revenue.
 - Customer satisfaction is recorded.
 - The occupied table becomes available.
 
-### Step 5: Satisfaction and Abandonment
+### Step 8: Satisfaction and Abandonment
 
-Unserved customers lose satisfaction according to their customer type.
+Customers still waiting for a table or food lose satisfaction according to their customer type.
 
 ```text
 Regular: -8
@@ -281,27 +423,23 @@ Critic:  -12
 
 Satisfaction cannot fall below zero.
 
-Customers reaching zero satisfaction abandon the restaurant.
+A customer whose satisfaction reaches zero abandons the restaurant.
 
-Any unfinished order is cancelled and the table is released.
+Unfinished orders are cancelled and occupied tables are released.
 
-Served customers do not lose further satisfaction.
+### Step 9: Turn Results
 
-### Step 6: Turn Results
+The game displays the updated statistics.
 
-The game displays turn results and progresses to the next turn.
+After Turn 18, the victory conditions are evaluated.
 
-After Turn 18, the system evaluates the victory conditions.
+## 8. Object-Oriented Design
 
----
-
-## 7. Object-Oriented Design
-
-Stage 2 demonstrates inheritance, polymorphism, encapsulation and separation of responsibilities.
+The system demonstrates inheritance, polymorphism, encapsulation and separation of responsibilities.
 
 ### Inheritance
 
-The three customer types share common attributes and behaviours through the `Customer` superclass.
+The three customer subclasses inherit common attributes and behaviour from `Customer`.
 
 ```text
               Customer
@@ -312,16 +450,9 @@ The three customer types share common attributes and behaviours through the `Cus
     Customer  Customer   Customer
 ```
 
-Common attributes include:
+`ComboMeal` also extends `MenuItem`.
 
-- Customer ID
-- Satisfaction
-- Customer status
-- Assigned table
-- Customer order
-- Serving and payment turn information
-
-This avoids duplicating customer lifecycle logic.
+This allows combo meals to use the existing ordering, cooking and payment workflow without introducing a separate order system.
 
 ### Polymorphism
 
@@ -336,29 +467,15 @@ getDiscountPercent()
 chooseMenuItem(Menu menu)
 ```
 
-For example, `CustomerManager` calls:
+The same customer-management code can process Regular, VIP and Critic customers.
 
-```java
-customer.decreaseWaitingSatisfaction();
-```
-
-The customer object determines the appropriate satisfaction reduction.
-
-Similarly, `Order` calls:
-
-```java
-customer.getDiscountPercent();
-```
-
-The correct discount is determined by the actual customer type.
-
-This allows the existing managers and staff classes to work with different customer types through the shared `Customer` interface provided by the superclass.
+Each subclass determines its own satisfaction loss, discount and food-selection behaviour.
 
 ### Encapsulation
 
-Customer attributes are private and accessed through defined methods.
+Customer attributes are private and modified through defined methods.
 
-Customer state changes are controlled through operations such as:
+Examples include:
 
 ```java
 seatAt()
@@ -367,186 +484,105 @@ markServed()
 markReadyToPay()
 markPaid()
 abandon()
+recoverSatisfaction()
 ```
 
-These methods validate the customer's current state before allowing a transition.
+These methods validate state changes.
+
+Happy Hour activation is controlled through `GameState` to prevent repeated activation.
 
 ### Separation of Responsibilities
 
-- Customer classes manage customer behaviour and state.
-- CustomerManager manages customer collections and lifecycle updates.
-- TableManager manages seating and table releases.
-- OrderManager creates and tracks orders.
-- Staff classes execute restaurant operations.
-- GameController coordinates turns.
-- ConsoleUI handles display.
-- InputHandler collects user input.
+| Class / Package | Responsibility |
+|---|---|
+| `Main` | Creates game objects |
+| `GameConfig` | Stores game settings |
+| `GameState` | Stores shared state, statistics and Happy Hour information |
+| `GameController` | Coordinates the game turns |
+| `Customer` and subclasses | Customer states and behaviours |
+| `CustomerManager` | Customer collections, satisfaction and lifecycle |
+| `TableManager` | Seating and table allocation |
+| `MenuItem` and `ComboMeal` | Food item representation |
+| `Menu` | Menu item registration |
+| `Order` | Order progress and locked prices |
+| `OrderManager` | Order creation and tracking |
+| `Host` | Independent seating actions |
+| `Waiter` | Seating, order taking and serving |
+| `Chef` | Food preparation |
+| `Cashier` | Automatic payment processing |
+| `InputHandler` | User input |
+| `ConsoleUI` | Console display |
 
-Game rules are kept separate from the console interface.
+### Reuse of Existing Components
 
----
+The Host reuses `TableManager` for seating.
 
-## 8. Stage 1 to Stage 2 Changes
+ComboMeal inherits from `MenuItem` and reuses the existing order-preparation workflow.
 
-Stage 2 extends the existing Stage 1 implementation without replacing the original restaurant workflow.
+Happy Hour recovery reuses customer satisfaction methods.
+
+The existing customer lifecycle and payment mechanisms remain unchanged.
+
+## 9. Stage 2 to Stage 3 Changes
+
+Stage 3 extends Stage 2 rather than replacing existing game.
 
 ### Newly Added Files
 
 | File | Purpose |
 |---|---|
-| `src/customer/RegularCustomer.java` | Explicit Regular customer subclass |
-| `src/customer/VIPCustomer.java` | VIP satisfaction and discount behaviour |
-| `src/customer/CriticCustomer.java` | Critic satisfaction and order preference |
+| `src/staff/Host.java` | Independent Host actions |
+| `src/menu/ComboMeal.java` | Combined meal pricing and preparation |
 
 ### Modified Files
 
 | File | Changes |
 |---|---|
-| `Customer.java` | Added overridable customer behaviour methods and polymorphic satisfaction reduction |
-| `CustomerManager.java` | Supports different customer subclasses through the common Customer type |
-| `GameController.java` | Creates fixed VIP and Critic arrivals and displays final bills |
-| `ConsoleUI.java` | Displays customer types and order prices |
-| `Order.java` | Applies customer-specific discounts and locks the final bill |
-| `OrderManager.java` | Added order-selection validation and retained polymorphic food selection |
-| `Menu.java` | Minor internal refactoring while preserving the original three items |
-| `MenuItem.java` | Refined validation, formatting and string representation |
-| `GameState.java` | Refined payment validation and code readability |
-| `Cashier.java` | Strengthened payment validation while preserving the original payment workflow |
+| `src/controller/GameConfig.java` | Adds Happy Hour duration |
+| `src/controller/GameState.java` | Tracks Happy Hour activation and remaining turns |
+| `src/controller/GameController.java` | Adds Host and Happy Hour actions |
+| `src/ui/InputHandler.java` | Adds Host and Happy Hour input options |
+| `src/app/Main.java` | Instantiates the Host |
+| `src/customer/Customer.java` | Adds satisfaction recovery |
+| `src/customer/CustomerManager.java` | Applies Happy Hour recovery |
+| `src/menu/Menu.java` | Registers ComboMeal |
+| `src/order/Order.java` | Supports Happy Hour discount calculation |
+| `src/order/OrderManager.java` | Accepts Happy Hour status during order creation |
+| `src/staff/Waiter.java` | Passes Happy Hour status into order creation |
 
 ### Unchanged Core Functionality
 
-The following Stage 1 features remain:
+The following features are retained from earlier stages:
 
 - 18-turn game duration
 - Two tables
-- Six customer arrivals
-- Waiter and Chef action limitations
+- Six scheduled customer arrivals
+- Regular, VIP and Critic customer behaviours
+- Waiter and Chef action limits
 - Automatic Cashier payment
-- Order preparation timing
+- Food preparation timing
 - Customer eating and payment timing
-- Satisfaction and abandonment
+- Satisfaction loss and abandonment
 - Victory and defeat conditions
 
-No existing source files were deleted as part of the Stage 2 extension.
+`Chef.java` and `Cashier.java` require no Stage 3 modifications because their existing implementations already support multi-unit preparation and locked order prices.
 
-### Design Rationale
+## 10. Team Responsibilities
 
-The main design decision was to introduce customer subclasses instead of placing customer-type conditions throughout the game controller.
-
-This allows customer-specific behaviour to remain inside the relevant customer objects.
-
-The original customer lifecycle and staff workflow can therefore be reused.
-
-### GitHub Evidence
-
-Stage 1 release:
-https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-1
-
-Stage 2 development:
-https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-2-dev
-
-Compare Stage 1 and Stage 2:
-https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-1...stage-2-dev
-
-The `stage-2` release tag should be created after Stage 2 testing is completed.
-
----
-
-## 9. Team Responsibilities
-
-| Member | Main Packages | Responsibilities |
+| Member | Main Packages | Stage 3 Responsibilities |
 |---|---|---|
-| M1 | app, controller, ui | Game setup, turn control, console interface and game statistics |
-| M2 | customer, restaurant | Customer types, satisfaction, customer lifecycle, queue and seating |
-| M3 | menu, order | Menu, order creation, food selection, preparation and pricing |
-| M4 | staff | Waiter, Chef and Cashier actions |
+| M1 | `app`, `controller`, `ui` | Game setup, turn coordination, Happy Hour activation, Host integration and user input |
+| M2 | `customer`, `restaurant` | Customer lifecycle, satisfaction recovery, queue and seating |
+| M3 | `menu`, `order` | ComboMeal, pricing, discount calculations and order management |
+| M4 | `staff` | Host implementation and Waiter integration |
 
-All components interact through their defined methods.
+All members build upon the shared Stage 2 implementation.
 
----
+Although the main Stage 3 features passed automated smoke tests and full gameplay testing has been marked complete, additional test evidence should be documented before submission.
 
-## 10. Stage 2 Testing
+These decisions preserve reproducible gameplay and the required base-game configuration.
 
-The following tests should be completed before tagging the Stage 2 release.
+The `stage-3` tag should identify the completed Stage 3 implementation together with its release documentation.
 
-### Customer Behaviour Tests
+Each stage must remain independently runnable.
 
-- [ ] Regular customers lose 8 satisfaction per unserved turn.
-- [ ] VIP customers lose 5 satisfaction per unserved turn.
-- [ ] Critic customers lose 12 satisfaction per unserved turn.
-- [ ] Satisfaction never falls below zero.
-- [ ] VIP customers receive a 10% discount.
-- [ ] Critic customers select the most expensive menu item.
-- [ ] All three customer types use the same order and payment workflow.
-
-### Game Logic Tests
-
-- [ ] Exactly six customers arrive on the scheduled turns.
-- [ ] At least one VIP and one Critic appear in the base game.
-- [ ] The Waiter performs at most one task per turn.
-- [ ] The Chef prepares at most one unit per turn.
-- [ ] Newly completed food cannot be served during the same turn.
-- [ ] Customers cannot pay during the turn they become READY_TO_PAY.
-- [ ] Revenue increases only after successful payment.
-- [ ] Tables are released after payment or abandonment.
-- [ ] Invalid actions can be retried without consuming a staff task.
-- [ ] The game runs all 18 turns.
-
-### Game Outcome Tests
-
-- [ ] A reproducible victory run is recorded.
-- [ ] A reproducible defeat run is recorded.
-- [ ] The game correctly evaluates all three victory conditions.
-- [ ] The final result correctly displays revenue and customer statistics.
-
-Testing evidence and exact input sequences should be documented before final release.
-
----
-
-## 11. Known Limitations
-
-- The game uses a command-line interface rather than a graphical interface.
-- Customer arrivals follow a fixed schedule.
-- Customer types are assigned deterministically.
-- Customer food choices are automated.
-- Only one Waiter, Chef and Cashier are available.
-- The base game contains two tables and three menu items.
-- Stage 3 features are not included in this release.
-
-These constraints preserve the assignment's reproducible base setting.
-
----
-
-## 12. Future Development — Stage 3
-
-Stage 3 will extend the existing system with:
-
-### Host
-
-An additional staff role that can seat one customer per turn independently of the Waiter.
-
-### ComboMeal
-
-A meal combining two existing menu items, with combined preparation units and discounted pricing.
-
-### Happy Hour
-
-A temporary pricing policy offering discounts and customer satisfaction recovery.
-
-These features belong to Stage 3 and are not implemented in the current Stage 2 branch.
-
----
-
-## 13. Release Status
-
-| Stage | Status | Git Tag |
-|---|---|---|
-| Stage 1 | Released | `stage-1` |
-| Stage 2 | Implementation present; final verification pending | `stage-2` (pending) |
-| Stage 3 | Not yet implemented | `stage-3` (pending) |
-
-The final submission will also require updated UML diagrams, a design report, gameplay evidence, video timestamps and declaration forms.
-
-Video demonstration timestamps: To be added after recording.
-
-Stage 2 must be compiled and tested independently before creating its release tag.
