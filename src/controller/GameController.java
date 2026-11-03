@@ -35,14 +35,11 @@ public class GameController {
     private final Host host;
     private final Chef chef;
     private final Cashier cashier;
-
-    // Additional Feature: Cooking challenge
     private final CookingChallenge cookingChallenge;
 
     private int nextCustomerId = 1;
 
     // Original constructor retained for compatibility
-    // Missing cooking challenge will cause an error
     public GameController(GameState gameState,
                           ConsoleUI consoleUI,
                           InputHandler inputHandler,
@@ -86,7 +83,7 @@ public class GameController {
         this.cashier =
                 Objects.requireNonNull(cashier, "cashier");
 
-        // Prevent cooking challenge from being skipped
+        // Prevent the cooking challenge from being skipped
         this.cookingChallenge = Objects.requireNonNull(
                 cookingChallenge,
                 "CookingChallenge is missing. Check Main.java.");
@@ -134,7 +131,6 @@ public class GameController {
                     createArrivingCustomer(customerId));
         }
 
-        // Stage 3: Happy Hour
         handleHappyHourChoice();
 
         if (gameState.isHappyHourActive()) {
@@ -142,7 +138,6 @@ public class GameController {
                     .applyHappyHourRecovery();
         }
 
-        // Existing turn sequence
         consoleUI.showStartOfTurn(gameState, waiter, chef);
         consoleUI.showHappyHourStatus(gameState);
 
@@ -332,7 +327,7 @@ public class GameController {
 
                     case 5:
 
-                        // Viewing history does not consume an action
+                        // Viewing history does not use a Waiter action
                         consoleUI.showHistory(gameState);
 
                         break;
@@ -381,19 +376,18 @@ public class GameController {
                                 gameState.getOrderManager()
                                         .getOrderById(orderId);
 
-                        // Validate cooking challenge timing
+                        // Check the target time for this dish
                         cookingChallenge.getTargetSeconds(
                                 order.getItem());
 
-                        // Existing Stage 3 preparation action
+                        // Prepare one unit, as in Stage 3
                         chef.prepareOrder(orderId, gameState);
 
                         consoleUI.showMessage(
                                 "Prepared one unit of Order #"
                                 + orderId + ".");
 
-                        // Additional Feature:
-                        // Start cooking challenge after final prep unit
+                        // Trigger one challenge on the final unit
                         if (order.getStatus() == OrderStatus.READY
                                 && !order.isCookingQualityRecorded()) {
 
@@ -401,7 +395,7 @@ public class GameController {
                                     "Order #" + orderId
                                     + " has finished preparation.");
 
-                            // Cooking challenge uses dish-specific timing
+                            // Different target times for each dish
                             // Salad: 2 seconds
                             // Burger: 3 seconds
                             // Pasta: 5 seconds
@@ -410,7 +404,6 @@ public class GameController {
                                     cookingChallenge.playChallenge(
                                             order.getItem());
 
-                            // Record cooking quality
                             order.recordCookingQuality(quality);
 
                             consoleUI.showMessage(
@@ -555,7 +548,7 @@ public class GameController {
 
         int currentTurn = gameState.getCurrentTurn();
 
-        // Existing Stage 3 eating progress
+        // Existing eating progress
         gameState.getCustomerManager()
                 .advanceEating(currentTurn);
 
@@ -564,44 +557,46 @@ public class GameController {
                 cashier.processOldestEligiblePayment(
                         gameState, currentTurn);
 
-        // Additional Feature:
-        // Generate review after customer pays
+        // Generate a review after successful payment
         if (paidCustomer != null) {
             recordCustomerReview(paidCustomer);
         }
 
-        // Existing satisfaction loss and abandonment
+        // Reduce satisfaction and find newly abandoned customers
         List<Customer> newlyAbandoned =
                 gameState.getCustomerManager()
                         .applyEndTurnSatisfactionLoss();
 
         for (Customer customer : newlyAbandoned) {
 
-            // Additional Feature:
-            // Display red abandonment alert BEFORE releasing table
+            // Display red abandonment message for:
+            // 1. Customers waiting in the queue
+            // 2. Customers seated at a table
+            //
+            // Must happen BEFORE the table is released
             consoleUI.showCustomerAbandonment(customer);
 
-            // Cancel unpaid order
+            // Cancel any unfinished unpaid order
             gameState.getOrderManager()
                     .cancelUnpaidOrderFor(customer);
 
-            // Release table
+            // Release the table if one was assigned
+            // Safe for queue customers without tables
             gameState.getTableManager()
                     .releaseTable(customer);
 
-            // Update statistics
+            // Update abandonment statistics
             gameState.recordAbandonment();
 
-            // Generate BAD review
+            // Generate BAD customer feedback
             recordCustomerReview(customer);
         }
     }
 
     // -------------------------------------------------
-    // ADDITIONAL FEATURE: CUSTOMER REVIEWS
+    // CUSTOMER REVIEWS
     // -------------------------------------------------
 
-    // Generate a review when a customer leaves
     private void recordCustomerReview(Customer customer) {
 
         Review review;
@@ -640,8 +635,7 @@ public class GameController {
                     "Customer must leave before giving feedback.");
         }
 
-        // Display customer feedback in white
-        // No green [OK] prefix
+        // White review message without the green [OK] prefix
         System.out.println(
                 AnsiColors.paint(
                         "  [REVIEW] " + review.toDisplayString(),
