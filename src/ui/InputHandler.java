@@ -4,6 +4,10 @@ package ui;
 import java.util.List;
 import java.util.Scanner;
 
+// Handles game menus and player input.
+// All actions remain visible.
+// The controller checks whether actions are valid.
+
 public class InputHandler {
 
     private final Scanner scanner;
@@ -13,11 +17,10 @@ public class InputHandler {
             throw new IllegalArgumentException(
                     "Scanner cannot be null.");
         }
-
         this.scanner = scanner;
     }
 
-    // Read an integer from the user
+    // Read a whole number from the player
     public int readInt(String prompt) {
         while (true) {
             System.out.print(
@@ -36,45 +39,30 @@ public class InputHandler {
         }
     }
 
-    // -------------------------------------------------
-    // HAPPY HOUR
-    // -------------------------------------------------
-
-    // Let the player activate Happy Hour or save it
+    // Stage 3: Happy Hour selection
     public int readHappyHourChoice() {
         heading("HAPPY HOUR (START OF TURN)");
 
         System.out.println(
                 "  1. Activate now (this turn and the next)");
-
         System.out.println(
                 "  2. Save for a later turn");
 
         return readMenuChoice(2, "Happy Hour");
     }
 
-    // -------------------------------------------------
-    // HOST ACTION
-    // -------------------------------------------------
-
-    // Display the customers that the Host can seat
+    // Stage 3: Host selection
+    // All actions remain visible without availability hints
     public int readHostChoice(List<Integer> seatIds) {
         heading("HOST ACTION");
 
-        System.out.println(
-                "  1. Seat one waiting customer"
-                + eligibleText(seatIds));
-
+        System.out.println("  1. Seat one waiting customer");
         System.out.println("  2. Wait");
 
         return readMenuChoice(2, "Host");
     }
 
-    // -------------------------------------------------
-    // WAITER ACTION
-    // -------------------------------------------------
-
-    // Display eligible customers and orders for each task
+    // Display all Waiter actions without availability hints
     public int readWaiterChoice(
             List<Integer> seatIds,
             String seatReason,
@@ -83,59 +71,28 @@ public class InputHandler {
 
         heading("WAITER ACTION");
 
-        // Show which customers can be seated
-        if (seatIds.isEmpty()) {
-            System.out.println(
-                    "  1. Seat customer (Unavailable: "
-                    + seatReason + ")");
-        } else {
-            System.out.println(
-                    "  1. Seat customer"
-                    + eligibleText(seatIds));
-        }
-
-        // Show which customers can place an order
-        System.out.println(
-                "  2. Take order"
-                + eligibleText(takeOrderIds));
-
-        // Show which orders can be served
-        System.out.println(
-                "  3. Serve order"
-                + eligibleText(serveIds));
-
+        System.out.println("  1. Seat customer");
+        System.out.println("  2. Take order");
+        System.out.println("  3. Serve order");
         System.out.println("  4. Wait");
-
-        // Viewing history does not use a Waiter action
         System.out.println(
-                "  5. View order history"
-                + " (does not consume a turn)");
+                "  5. View order history (does not consume a turn)");
 
         return readMenuChoice(5, "Waiter");
     }
 
-    // -------------------------------------------------
-    // CHEF ACTION
-    // -------------------------------------------------
-
-    // Display which orders can be prepared
+    // Display all Chef actions without availability hints
     public int readChefChoice(List<Integer> prepareIds) {
         heading("CHEF ACTION");
 
-        System.out.println(
-                "  1. Prepare order"
-                + eligibleText(prepareIds));
-
+        System.out.println("  1. Prepare order");
         System.out.println("  2. Wait");
 
         return readMenuChoice(2, "Chef");
     }
 
-    // -------------------------------------------------
-    // TARGET SELECTION
-    // -------------------------------------------------
-
-    // Let the player select an eligible customer or order
+    // Select a customer or order
+    // Keep the same target-selection behaviour as Stage 2
     public int readTargetId(
             String targetName, List<Integer> eligibleIds) {
 
@@ -144,7 +101,7 @@ public class InputHandler {
                     "No eligible " + targetName + " is available.");
         }
 
-        // Automatically select when only one target is eligible
+        // Automatically select if only one target is eligible
         if (eligibleIds.size() == 1) {
             return eligibleIds.get(0);
         }
@@ -152,7 +109,7 @@ public class InputHandler {
         int id = readInt(
                 "Enter " + targetName + " ID: ");
 
-        // Reject IDs that are not currently eligible
+        // Reject an invalid target
         if (!eligibleIds.contains(id)) {
             throw new IllegalArgumentException(
                     targetName + " #" + id
@@ -162,23 +119,8 @@ public class InputHandler {
         return id;
     }
 
-    // -------------------------------------------------
-    // HELPER METHODS
-    // -------------------------------------------------
-
-    // Display available IDs or indicate that a task is unavailable
-    private String eligibleText(List<Integer> eligibleIds) {
-
-        if (eligibleIds == null || eligibleIds.isEmpty()) {
-            return " (Unavailable)";
-        }
-
-        return " (Eligible IDs: " + eligibleIds + ")";
-    }
-
-    // Make sure the user chooses a valid menu option
+    // Validate menu choices
     private int readMenuChoice(int max, String staffName) {
-
         while (true) {
             int choice = readInt(
                     "Choose a " + staffName
@@ -196,9 +138,8 @@ public class InputHandler {
         }
     }
 
-    // Display a menu heading
+    // Display the menu heading
     private void heading(String title) {
-
         System.out.println();
 
         System.out.println(
