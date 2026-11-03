@@ -125,13 +125,9 @@ public class ConsoleUI {
                 "  Avg satisfaction "
                 + goal(satisfaction, satisfactionMet));
 
-        // Stage 2 refinement:
-        // Display turns differently during gameplay
-        // and after the final turn.
-
+        // Display turns differently during gameplay and after the final turn.
         if (isFinalResult) {
 
-            // All 18 turns have already been completed.
             System.out.println(
                     "  Turns completed  "
                     + GameConfig.MAX_TURNS
@@ -140,8 +136,6 @@ public class ConsoleUI {
 
         } else {
 
-            // Include the current turn because
-            // the player has not finished it yet.
             int turnsRemaining =
                     GameConfig.MAX_TURNS
                     - state.getCurrentTurn()
@@ -399,8 +393,7 @@ public class ConsoleUI {
     // -------------------------------------------------
 
     /**
-     * Viewing order history does not consume
-     * a Waiter action.
+     * Viewing order history does not consume a Waiter action.
      */
     public void showHistory(GameState state) {
 
@@ -465,7 +458,6 @@ public class ConsoleUI {
                 "END OF TURN "
                 + state.getCurrentTurn());
 
-        // Display N/A when no customer has paid.
         String averageSatisfaction =
                 state.getPaidCustomerCount() == 0
                 ? "N/A"
@@ -473,17 +465,21 @@ public class ConsoleUI {
                         "%.1f",
                         state.getAveragePaidSatisfaction());
 
+        // Stage 2 correction: include turns used in the summary.
         System.out.printf(
                 "  Revenue $%.2f"
                 + " | Paid %d"
                 + " | Served %d"
                 + " | Abandoned %d"
-                + " | Avg satisfaction %s%n",
+                + " | Avg satisfaction %s"
+                + " | Turns used %d / %d%n",
                 state.getRevenueCents() / 100.0,
                 state.getPaidCustomerCount(),
                 state.getServedCustomerCount(),
                 state.getAbandonedCustomerCount(),
-                averageSatisfaction);
+                averageSatisfaction,
+                state.getCurrentTurn(),
+                GameConfig.MAX_TURNS);
     }
 
     // -------------------------------------------------
@@ -532,12 +528,10 @@ public class ConsoleUI {
 
         if (customer.getTable() == null) {
 
-            // Customer abandoned the queue
             location = "abandoned the queue!";
 
         } else {
 
-            // Customer abandoned a table
             location = "left Table "
                     + customer.getTable().getNumber() + "!";
         }
@@ -576,8 +570,6 @@ public class ConsoleUI {
         System.out.println(
                 AnsiColors.paint(RULE, AnsiColors.CYAN));
 
-        // true = final scoreboard
-        // Show completed turns instead of remaining turns.
         showStatistics(state, true);
 
         System.out.println(
@@ -593,10 +585,7 @@ public class ConsoleUI {
     // HELPER METHODS
     // -------------------------------------------------
 
-    /**
-     * Stage 2:
-     * Display customer types using polymorphism.
-     */
+    // Display customer type using polymorphism.
     private String customerLabel(Customer customer) {
 
         return customer.getCustomerType()
@@ -604,9 +593,6 @@ public class ConsoleUI {
                 + customer.getId();
     }
 
-    /**
-     * Convert cents into dollars.
-     */
     private String money(int cents) {
 
         return String.format(
@@ -614,9 +600,6 @@ public class ConsoleUI {
                 cents / 100.0);
     }
 
-    /**
-     * Display a section heading.
-     */
     private void section(String heading) {
 
         System.out.println();
@@ -627,9 +610,6 @@ public class ConsoleUI {
                         AnsiColors.CYAN + AnsiColors.BOLD));
     }
 
-    /**
-     * Colour achieved and incomplete goals.
-     */
     private String goal(String text, boolean met) {
 
         return AnsiColors.paint(
@@ -639,9 +619,6 @@ public class ConsoleUI {
                     : AnsiColors.YELLOW);
     }
 
-    /**
-     * Display customer status with colours.
-     */
     private String customerStatus(CustomerStatus status) {
 
         switch (status) {
@@ -674,9 +651,6 @@ public class ConsoleUI {
         }
     }
 
-    /**
-     * Display order status with colours.
-     */
     private String orderStatus(OrderStatus status) {
 
         switch (status) {
@@ -708,9 +682,6 @@ public class ConsoleUI {
         }
     }
 
-    /**
-     * Check whether any table is available.
-     */
     private boolean hasFreeTable(GameState state) {
 
         for (Table table :
@@ -724,10 +695,6 @@ public class ConsoleUI {
         return false;
     }
 
-    /**
-     * Check whether the customer is still
-     * waiting to be served.
-     */
     private boolean isUnserved(Customer customer) {
 
         return customer.getStatus()
@@ -738,10 +705,6 @@ public class ConsoleUI {
                     == CustomerStatus.ORDERED;
     }
 
-    /**
-     * An order can only be served on a turn
-     * later than the turn it became READY.
-     */
     private boolean canServe(
             Order order, int currentTurn) {
 
