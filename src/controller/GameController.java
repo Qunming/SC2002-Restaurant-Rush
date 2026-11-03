@@ -38,8 +38,7 @@ public class GameController {
 
     private int nextCustomerId = 1;
 
-    // Original constructor
-    // Preserved for compatibility with existing Stage 3 code
+    // Old constructor retained to detect missing configuration
     public GameController(GameState gameState,
                           ConsoleUI consoleUI,
                           InputHandler inputHandler,
@@ -52,7 +51,7 @@ public class GameController {
                 waiter, host, chef, cashier, null);
     }
 
-    // Additional Feature: Constructor with cooking challenge
+    // Constructor with cooking challenge
     public GameController(GameState gameState,
                           ConsoleUI consoleUI,
                           InputHandler inputHandler,
@@ -83,7 +82,10 @@ public class GameController {
         this.cashier =
                 Objects.requireNonNull(cashier, "cashier");
 
-        this.cookingChallenge = cookingChallenge;
+        // Do not silently disable the cooking challenge
+        this.cookingChallenge = Objects.requireNonNull(
+                cookingChallenge,
+                "CookingChallenge is missing. Check Main.java.");
     }
 
     // -------------------------------------------------
@@ -120,7 +122,6 @@ public class GameController {
 
         int currentTurn = gameState.getCurrentTurn();
 
-        // Create scheduled customers
         if (GameConfig.isArrivalTurn(currentTurn)) {
 
             int customerId = nextCustomerId++;
@@ -129,7 +130,6 @@ public class GameController {
                     createArrivingCustomer(customerId));
         }
 
-        // Stage 3: Happy Hour
         handleHappyHourChoice();
 
         if (gameState.isHappyHourActive()) {
@@ -137,7 +137,6 @@ public class GameController {
                     .applyHappyHourRecovery();
         }
 
-        // Existing Stage 3 turn sequence
         consoleUI.showStartOfTurn(gameState, waiter, chef);
         consoleUI.showHappyHourStatus(gameState);
 
@@ -327,7 +326,7 @@ public class GameController {
 
                     case 5:
 
-                        // Viewing history does not consume a Waiter action
+                        // Viewing history does not consume an action
                         consoleUI.showHistory(gameState);
 
                         break;
@@ -372,38 +371,32 @@ public class GameController {
                         int orderId = inputHandler.readTargetId(
                                 "order", prepareIds);
 
-                        // Existing Stage 3 preparation action
+                        // Existing Stage 3 preparation
                         chef.prepareOrder(orderId, gameState);
 
                         consoleUI.showMessage(
                                 "Prepared one unit of Order #"
                                 + orderId + ".");
 
-                        // Additional Feature:
-                        // Check whether preparation is now complete
                         Order order =
                                 gameState.getOrderManager()
                                         .getOrderById(orderId);
 
+                        // Additional Feature:
+                        // Start the challenge only when cooking finishes
                         if (order.getStatus() == OrderStatus.READY
                                 && !order.isCookingQualityRecorded()) {
 
-                            CookingQuality quality;
+                            consoleUI.showMessage(
+                                    "Order #" + orderId
+                                    + " has finished preparation.");
 
-                            if (cookingChallenge != null) {
+                            // Always run the cooking challenge
+                            // No automatic NORMAL fallback
+                            CookingQuality quality =
+                                    cookingChallenge.playChallenge();
 
-                                // Run the timing challenge
-                                quality =
-                                        cookingChallenge.playChallenge();
-
-                            } else {
-
-                                // Compatibility with the original constructor
-                                // Main.java will enable the challenge next
-                                quality = CookingQuality.NORMAL;
-                            }
-
-                            // Store the result in the order
+                            // Save the challenge result
                             order.recordCookingQuality(quality);
 
                             consoleUI.showMessage(
@@ -435,7 +428,7 @@ public class GameController {
 
                 consoleUI.showError(
                         ex.getMessage()
-                        + " No staff task was used; please choose again.");
+                        + " Please choose again.");
             }
         }
     }
@@ -552,14 +545,12 @@ public class GameController {
         gameState.getCustomerManager()
                 .advanceEating(currentTurn);
 
-        // Existing automatic payment
-        // Cashier also records any cooking-quality tip
+        // Cashier processes payment and tips
         Customer paidCustomer =
                 cashier.processOldestEligiblePayment(
                         gameState, currentTurn);
 
-        // Additional Feature:
-        // Generate feedback after payment
+        // Additional Feature: Review after payment
         if (paidCustomer != null) {
             recordCustomerReview(paidCustomer);
         }
@@ -571,7 +562,6 @@ public class GameController {
 
         for (Customer customer : newlyAbandoned) {
 
-            // Existing abandonment cleanup
             gameState.getOrderManager()
                     .cancelUnpaidOrderFor(customer);
 
@@ -580,17 +570,15 @@ public class GameController {
 
             gameState.recordAbandonment();
 
-            // Additional Feature:
-            // Generate negative feedback after abandonment
+            // Additional Feature: Review after abandonment
             recordCustomerReview(customer);
         }
     }
 
     // -------------------------------------------------
-    // ADDITIONAL FEATURE: CUSTOMER REVIEWS
+    // CUSTOMER REVIEWS
     // -------------------------------------------------
 
-    // Generate one review when a customer leaves
     private void recordCustomerReview(Customer customer) {
 
         Review review;
@@ -610,7 +598,7 @@ public class GameController {
             CookingQuality quality =
                     order.getCookingQuality();
 
-            // Polymorphism determines how customers react
+            // Polymorphism determines customer feedback
             FeedbackType feedback =
                     customer.getFeedbackType(quality);
 
@@ -629,7 +617,6 @@ public class GameController {
                     "Customer must leave before giving feedback.");
         }
 
-        // Display the review when it is generated
         consoleUI.showMessage(review.toDisplayString());
     }
 
