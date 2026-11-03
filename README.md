@@ -567,18 +567,6 @@ The following features are retained from earlier stages:
 
 `Chef.java` and `Cashier.java` require no Stage 3 modifications because their existing implementations already support multi-unit preparation and locked order prices.
 
-## 10. Team Responsibilities
-
-| Member | Main Packages | Stage 3 Responsibilities |
-|---|---|---|
-| M1 | `app`, `controller`, `ui` | Game setup, turn coordination, Happy Hour activation, Host integration and user input |
-| M2 | `customer`, `restaurant` | Customer lifecycle, satisfaction recovery, queue and seating |
-| M3 | `menu`, `order` | ComboMeal, pricing, discount calculations and order management |
-| M4 | `staff` | Host implementation and Waiter integration |
-
-All members build upon the shared Stage 2 implementation.
-
-Although the main Stage 3 features passed automated smoke tests and full gameplay testing has been marked complete, additional test evidence should be documented before submission.
 
 These decisions preserve reproducible gameplay and the required base-game configuration.
 
