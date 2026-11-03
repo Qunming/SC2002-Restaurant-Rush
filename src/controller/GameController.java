@@ -19,6 +19,7 @@ import ui.ConsoleUI;
 import ui.InputHandler;
 
 public class GameController {
+
     private final GameState gameState;
     private final ConsoleUI consoleUI;
     private final InputHandler inputHandler;
@@ -32,6 +33,7 @@ public class GameController {
     public GameController(GameState gameState, ConsoleUI consoleUI,
                           InputHandler inputHandler, Waiter waiter,
                           Host host, Chef chef, Cashier cashier) {
+
         this.gameState = Objects.requireNonNull(gameState, "gameState");
         this.consoleUI = Objects.requireNonNull(consoleUI, "consoleUI");
         this.inputHandler = Objects.requireNonNull(inputHandler, "inputHandler");
@@ -42,26 +44,37 @@ public class GameController {
     }
 
     public void run() {
+
         while (gameState.getCurrentTurn() <= GameConfig.MAX_TURNS) {
+
             waiter.resetForNewTurn();
             host.resetForNewTurn();
             chef.resetForNewTurn();
+
             playTurn();
 
             if (gameState.getCurrentTurn() == GameConfig.MAX_TURNS) {
                 break;
             }
+
             gameState.advanceTurn();
         }
+
         consoleUI.showFinalResult(gameState, hasWon());
     }
 
-    // turn sequence
+    // -------------------------------------------------
+    // TURN SEQUENCE
+    // -------------------------------------------------
+
     public void playTurn() {
+
         int currentTurn = gameState.getCurrentTurn();
 
         if (GameConfig.isArrivalTurn(currentTurn)) {
+
             int customerId = nextCustomerId++;
+
             gameState.getCustomerManager().addCustomer(
                     createArrivingCustomer(customerId));
         }
@@ -74,15 +87,22 @@ public class GameController {
 
         consoleUI.showStartOfTurn(gameState, waiter, chef);
         consoleUI.showHappyHourStatus(gameState);
+
         handleHostChoice();
         handleWaiterChoice();
         handleChefChoice();
+
         processEndOfTurn();
+
         consoleUI.showEndOfTurn(gameState);
     }
 
-    // happy hour activation
+    // -------------------------------------------------
+    // HAPPY HOUR
+    // -------------------------------------------------
+
     public void handleHappyHourChoice() {
+
         if (!gameState.canActivateHappyHour()) {
             return;
         }
@@ -90,22 +110,32 @@ public class GameController {
         int choice = inputHandler.readHappyHourChoice();
 
         if (choice == 1) {
+
             gameState.activateHappyHour();
+
             consoleUI.showMessage(
                     "Happy Hour activated for this turn and next turn.");
         }
     }
 
-    // host action
+    // -------------------------------------------------
+    // HOST ACTION
+    // -------------------------------------------------
+
     public void handleHostChoice() {
+
         while (true) {
+
             List<Integer> seatIds = eligibleSeatCustomerIds();
             String seatReason = seatUnavailableReason();
             int choice = inputHandler.readHostChoice(seatIds);
 
             try {
+
                 switch (choice) {
+
                     case 1: {
+
                         requireEligible(seatIds, seatReason);
 
                         int customerId = inputHandler.readTargetId(
@@ -115,28 +145,37 @@ public class GameController {
 
                         consoleUI.showMessage(
                                 "Host seated Customer #" + customerId + ".");
+
                         return;
                     }
 
                     case 2:
+
                         host.waitThisTurn();
+
                         consoleUI.showMessage("Host waits this turn.");
+
                         return;
 
                     default:
+
                         throw new IllegalArgumentException(
                                 "Choose a Host action from 1 to 2.");
                 }
 
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                consoleUI.showError(ex.getMessage()
+
+                consoleUI.showError(
+                        ex.getMessage()
                         + " No Host task was used; please choose again.");
             }
         }
     }
 
     private Customer createArrivingCustomer(int customerId) {
+
         switch (customerId) {
+
             case 2:
                 return new VIPCustomer(customerId);
 
@@ -148,9 +187,14 @@ public class GameController {
         }
     }
 
-    // waiter action
+    // -------------------------------------------------
+    // WAITER ACTION
+    // -------------------------------------------------
+
     public void handleWaiterChoice() {
+
         while (true) {
+
             List<Integer> seatIds = eligibleSeatCustomerIds();
             List<Integer> takeIds = eligibleTakeOrderCustomerIds();
             List<Integer> serveIds = eligibleServeOrderIds();
@@ -160,8 +204,11 @@ public class GameController {
                     seatIds, seatReason, takeIds, serveIds);
 
             try {
+
                 switch (choice) {
+
                     case 1: {
+
                         requireEligible(seatIds, seatReason);
 
                         int customerId = inputHandler.readTargetId(
@@ -171,10 +218,12 @@ public class GameController {
 
                         consoleUI.showMessage(
                                 "Seated Customer #" + customerId + ".");
+
                         return;
                     }
 
                     case 2: {
+
                         requireEligible(takeIds,
                                 "No seated customer is waiting to place an order.");
 
@@ -187,10 +236,12 @@ public class GameController {
                                 .getCustomerById(customerId);
 
                         consoleUI.showPlacedOrder(customer);
+
                         return;
                     }
 
                     case 3: {
+
                         requireEligible(serveIds,
                                 "No order was READY before this turn.");
 
@@ -201,39 +252,55 @@ public class GameController {
 
                         consoleUI.showMessage(
                                 "Served Order #" + orderId + ".");
+
                         return;
                     }
 
                     case 4:
+
                         waiter.waitThisTurn();
+
                         consoleUI.showMessage("Waiter waits this turn.");
+
                         return;
 
                     case 5:
+
                         consoleUI.showHistory(gameState);
                         break;
 
                     default:
+
                         throw new IllegalArgumentException(
                                 "Choose a Waiter action from 1 to 5.");
                 }
 
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                consoleUI.showError(ex.getMessage()
+
+                consoleUI.showError(
+                        ex.getMessage()
                         + " No staff task was used; please choose again.");
             }
         }
     }
 
-    // chef action
+    // -------------------------------------------------
+    // CHEF ACTION
+    // -------------------------------------------------
+
     public void handleChefChoice() {
+
         while (true) {
+
             List<Integer> prepareIds = eligiblePrepareOrderIds();
             int choice = inputHandler.readChefChoice(prepareIds);
 
             try {
+
                 switch (choice) {
+
                     case 1: {
+
                         requireEligible(prepareIds,
                                 "No order is currently PLACED or PREPARING.");
 
@@ -244,61 +311,83 @@ public class GameController {
 
                         consoleUI.showMessage(
                                 "Prepared one unit of Order #" + orderId + ".");
+
                         return;
                     }
 
                     case 2:
+
                         chef.waitThisTurn();
+
                         consoleUI.showMessage("Chef waits this turn.");
+
                         return;
 
                     default:
+
                         throw new IllegalArgumentException(
                                 "Choose a Chef action from 1 to 2.");
                 }
 
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                consoleUI.showError(ex.getMessage()
+
+                consoleUI.showError(
+                        ex.getMessage()
                         + " No staff task was used; please choose again.");
             }
         }
     }
 
+    // -------------------------------------------------
+    // ELIGIBILITY CHECKS
+    // -------------------------------------------------
+
     private void requireEligible(List<Integer> ids, String reason) {
+
         if (ids.isEmpty()) {
             throw new IllegalStateException(reason);
         }
     }
 
     private boolean hasFreeTable() {
+
         for (Table table : gameState.getTableManager().getTables()) {
+
             if (table.isAvailable()) {
                 return true;
             }
         }
+
         return false;
     }
 
     private String seatUnavailableReason() {
+
         if (!hasFreeTable()) {
             return "All tables are occupied.";
         }
+
         return "There are no customers waiting for a table.";
     }
 
     private List<Integer> eligibleSeatCustomerIds() {
+
         List<Integer> ids = new ArrayList<>();
 
         if (hasFreeTable()) {
+
             for (Customer customer :
                     gameState.getCustomerManager().getWaitingCustomers()) {
+
                 ids.add(customer.getId());
             }
         }
+
         return ids;
     }
 
     private List<Integer> eligibleTakeOrderCustomerIds() {
+
         List<Integer> ids = new ArrayList<>();
 
         for (Customer customer :
@@ -308,52 +397,86 @@ public class GameController {
                 ids.add(customer.getId());
             }
         }
+
         return ids;
     }
 
     private List<Integer> eligibleServeOrderIds() {
+
         List<Integer> ids = new ArrayList<>();
 
         for (Order order : gameState.getOrderManager().getOrders()) {
+
             if (order.canBeServed(gameState.getCurrentTurn())
                     && order.getCustomer().getStatus()
                             == CustomerStatus.ORDERED) {
+
                 ids.add(order.getId());
             }
         }
+
         return ids;
     }
 
     private List<Integer> eligiblePrepareOrderIds() {
+
         List<Integer> ids = new ArrayList<>();
 
         for (Order order : gameState.getOrderManager().getOrders()) {
+
             if (order.canBePrepared()) {
                 ids.add(order.getId());
             }
         }
+
         return ids;
     }
 
-    // end of turn
+    // -------------------------------------------------
+    // END OF TURN
+    // -------------------------------------------------
+
     public void processEndOfTurn() {
+
         int currentTurn = gameState.getCurrentTurn();
 
-        gameState.getCustomerManager().advanceEating(currentTurn);
+        // Update customers who have finished eating
+        gameState.getCustomerManager()
+                .advanceEating(currentTurn);
 
+        // Process automatic payments
         cashier.processOldestEligiblePayment(gameState, currentTurn);
 
-        List<Customer> newlyAbandoned = gameState.getCustomerManager()
-                .applyEndTurnSatisfactionLoss();
+        // Reduce satisfaction and detect abandoned customers
+        List<Customer> newlyAbandoned =
+                gameState.getCustomerManager()
+                        .applyEndTurnSatisfactionLoss();
 
         for (Customer customer : newlyAbandoned) {
-            gameState.getOrderManager().cancelUnpaidOrderFor(customer);
-            gameState.getTableManager().releaseTable(customer);
+
+            // Display the abandonment alert before releasing the table
+            // Works for both waiting queue and seated customers
+            consoleUI.showCustomerAbandonment(customer);
+
+            // Cancel any unpaid order
+            gameState.getOrderManager()
+                    .cancelUnpaidOrderFor(customer);
+
+            // Release the table if the customer was seated
+            gameState.getTableManager()
+                    .releaseTable(customer);
+
+            // Update abandonment statistics
             gameState.recordAbandonment();
         }
     }
 
+    // -------------------------------------------------
+    // VICTORY CONDITIONS
+    // -------------------------------------------------
+
     public boolean hasWon() {
+
         return gameState.getPaidCustomerCount()
                 >= GameConfig.REQUIRED_PAID_CUSTOMERS
                 && gameState.getRevenueCents()
