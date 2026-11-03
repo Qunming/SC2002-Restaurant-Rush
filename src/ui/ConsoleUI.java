@@ -29,15 +29,17 @@ public class ConsoleUI {
                 + " / " + GameConfig.MAX_TURNS, AnsiColors.CYAN + AnsiColors.BOLD));
         System.out.println(AnsiColors.paint(RULE, AnsiColors.CYAN));
 
-        showStatistics(state);
+        showStatistics(state, false);
         showAlerts(state);
         showTables(state);
         showWaitingQueue(state);
         showActiveOrders(state);
     }
 
-    private void showStatistics(GameState state) {
+    // Display remaining turns during the game and completed turns at the end.
+    private void showStatistics(GameState state, boolean isFinalResult) {
         section("SCOREBOARD");
+
         boolean paidMet = state.getPaidCustomerCount()
                 >= GameConfig.REQUIRED_PAID_CUSTOMERS;
         boolean revenueMet = state.getRevenueCents()
@@ -49,6 +51,7 @@ public class ConsoleUI {
         String revenue = String.format("$%.2f / $%.2f",
                 state.getRevenueCents() / 100.0,
                 GameConfig.REQUIRED_REVENUE_CENTS / 100.0);
+
         String satisfaction = state.getPaidCustomerCount() == 0
                 ? "N/A / " + GameConfig.REQUIRED_AVERAGE_SATISFACTION
                 : String.format("%.1f / %d",
@@ -60,9 +63,16 @@ public class ConsoleUI {
                 + goal(state.getPaidCustomerCount() + " / "
                 + GameConfig.REQUIRED_PAID_CUSTOMERS, paidMet));
         System.out.println("  Avg satisfaction " + goal(satisfaction, satisfactionMet));
-        System.out.println("  Turns remaining  "
-                + (GameConfig.MAX_TURNS - state.getCurrentTurn() + 1)
-                + " (including this turn)");
+
+        // Stage 1 correction: show completed turns for the final result.
+        if (isFinalResult) {
+            System.out.println("  Turns completed  "
+                    + GameConfig.MAX_TURNS + " / " + GameConfig.MAX_TURNS);
+        } else {
+            System.out.println("  Turns remaining  "
+                    + (GameConfig.MAX_TURNS - state.getCurrentTurn() + 1)
+                    + " (including this turn)");
+        }
     }
 
     private void showAlerts(GameState state) {
@@ -87,6 +97,7 @@ public class ConsoleUI {
         }
 
         List<Customer> waiting = state.getCustomerManager().getWaitingCustomers();
+
         if (!waiting.isEmpty()) {
             if (hasFreeTable(state)) {
                 alerts.add(AnsiColors.paint("TABLE AVAILABLE", AnsiColors.GREEN)
@@ -117,8 +128,10 @@ public class ConsoleUI {
 
     private void showTables(GameState state) {
         section("DINING ROOM");
+
         for (Table table : state.getTableManager().getTables()) {
             Customer customer = table.getOccupant();
+
             if (customer == null) {
                 System.out.println("  Table " + table.getNumber() + "  "
                         + AnsiColors.paint("AVAILABLE", AnsiColors.GREEN));
@@ -134,11 +147,14 @@ public class ConsoleUI {
 
     private void showWaitingQueue(GameState state) {
         section("WAITING QUEUE");
+
         List<Customer> waiting = state.getCustomerManager().getWaitingCustomers();
+
         if (waiting.isEmpty()) {
             System.out.println("  Empty");
             return;
         }
+
         for (Customer customer : waiting) {
             System.out.println("  Customer #" + customer.getId()
                     + " | Satisfaction " + AnsiColors.satisfaction(
@@ -148,25 +164,31 @@ public class ConsoleUI {
 
     private void showActiveOrders(GameState state) {
         section("ACTIVE ORDERS");
+
         int activeCount = 0;
         int paidCount = 0;
         int cancelledCount = 0;
 
         for (Order order : state.getOrderManager().getOrders()) {
             OrderStatus status = order.getStatus();
+
             if (status == OrderStatus.PAID) {
                 paidCount++;
                 continue;
             }
+
             if (status == OrderStatus.CANCELLED) {
                 cancelledCount++;
                 continue;
             }
+
             activeCount++;
+
             String cooking = (status == OrderStatus.PLACED
                     || status == OrderStatus.PREPARING)
                     ? " | Prep left: " + order.getRemainingPreparationUnits()
                     : "";
+
             System.out.println("  #" + order.getId()
                     + " | Customer #" + order.getCustomer().getId()
                     + " | " + order.getItem().getName()
@@ -176,6 +198,7 @@ public class ConsoleUI {
         if (activeCount == 0) {
             System.out.println("  No active orders");
         }
+
         System.out.println("  Completed: "
                 + AnsiColors.paint(Integer.toString(paidCount), AnsiColors.GREEN)
                 + " paid | "
@@ -183,10 +206,12 @@ public class ConsoleUI {
                 + " cancelled  (history available in Waiter menu)");
     }
 
-    /** Viewing history does NOT use a Waiter or Chef action. */
+    // Viewing history does not use a Waiter or Chef action.
     public void showHistory(GameState state) {
         section("ALL ORDERS - HISTORY");
+
         List<Order> orders = state.getOrderManager().getOrders();
+
         if (orders.isEmpty()) {
             System.out.println("  No orders yet.");
         } else {
@@ -194,6 +219,7 @@ public class ConsoleUI {
                 Customer customer = order.getCustomer();
                 String dish = String.format("%-8s", order.getItem().getName());
                 String status = orderStatus(order.getStatus());
+
                 System.out.println("  Order #" + order.getId()
                         + " | C#" + customer.getId()
                         + " | " + dish
@@ -202,18 +228,30 @@ public class ConsoleUI {
                                 customer.getSatisfaction()));
             }
         }
+
         System.out.println("  Total paid: " + state.getPaidCustomerCount()
                 + " | Abandoned: " + state.getAbandonedCustomerCount());
         System.out.println("  (Customers who leave before ordering have no order record.)");
     }
 
+    // Stage 1 correction: include average satisfaction and turns used.
     public void showEndOfTurn(GameState state) {
         section("END OF TURN " + state.getCurrentTurn());
-        System.out.printf("  Revenue $%.2f | Paid %d | Served %d | Abandoned %d%n",
+
+        String satisfaction = state.getPaidCustomerCount() == 0
+                ? "N/A"
+                : String.format("%.1f", state.getAveragePaidSatisfaction());
+
+        System.out.printf("  Revenue $%.2f | Paid %d | Served %d"
+                        + " | Abandoned %d | Avg satisfaction %s"
+                        + " | Turns used %d / %d%n",
                 state.getRevenueCents() / 100.0,
                 state.getPaidCustomerCount(),
                 state.getServedCustomerCount(),
-                state.getAbandonedCustomerCount());
+                state.getAbandonedCustomerCount(),
+                satisfaction,
+                state.getCurrentTurn(),
+                GameConfig.MAX_TURNS);
     }
 
     public void showMessage(String message) {
@@ -225,11 +263,7 @@ public class ConsoleUI {
                 "  [INVALID] " + message, AnsiColors.RED));
     }
 
-    /**
-     * Display a red abandonment alert.
-     * Called before the table is released.
-     * Works for customers waiting in the queue or seated at a table.
-     */
+    // Display red abandonment alerts before the customer leaves the table.
     public void showCustomerAbandonment(Customer customer) {
         if (customer == null) {
             throw new IllegalArgumentException("Customer cannot be null.");
@@ -264,7 +298,10 @@ public class ConsoleUI {
                 victory ? AnsiColors.GREEN + AnsiColors.BOLD
                         : AnsiColors.RED + AnsiColors.BOLD));
         System.out.println(AnsiColors.paint(RULE, AnsiColors.CYAN));
-        showStatistics(state);
+
+        // Stage 1 correction: final scoreboard shows completed turns.
+        showStatistics(state, true);
+
         System.out.println("  Served customers: " + state.getServedCustomerCount());
         System.out.println("  Abandoned customers: " + state.getAbandonedCustomerCount());
     }
