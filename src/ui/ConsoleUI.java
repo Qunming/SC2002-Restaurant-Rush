@@ -1,3 +1,4 @@
+
 package ui;
 
 import controller.GameConfig;
@@ -224,6 +225,36 @@ public class ConsoleUI {
                 "  [INVALID] " + message, AnsiColors.RED));
     }
 
+    /**
+     * Display a red abandonment alert.
+     * Called before the table is released.
+     * Works for customers waiting in the queue or seated at a table.
+     */
+    public void showCustomerAbandonment(Customer customer) {
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer cannot be null.");
+        }
+
+        if (customer.getStatus() != CustomerStatus.ABANDONED) {
+            throw new IllegalArgumentException("Customer has not abandoned.");
+        }
+
+        String location;
+
+        if (customer.getTable() == null) {
+            location = "abandoned the queue!";
+        } else {
+            location = "left Table "
+                    + customer.getTable().getNumber() + "!";
+        }
+
+        String message = "  [ABANDONED] Customer #"
+                + customer.getId()
+                + " reached 0 satisfaction and " + location;
+
+        System.out.println(AnsiColors.paint(message, AnsiColors.RED));
+    }
+
     public void showFinalResult(GameState state, boolean victory) {
         System.out.println();
         System.out.println(AnsiColors.paint(RULE, AnsiColors.CYAN));
@@ -303,5 +334,4 @@ public class ConsoleUI {
         return order.getStatus() == OrderStatus.READY
                 && order.getReadyTurn() < currentTurn;
     }
-
 }
