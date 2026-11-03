@@ -450,60 +450,8 @@ https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-1...stage-2-dev
 
 The `stage-2` release tag should be created after Stage 2 testing is completed.
 
----
 
-## 9. Team Responsibilities
-
-| Member | Main Packages | Responsibilities |
-|---|---|---|
-| M1 | app, controller, ui | Game setup, turn control, console interface and game statistics |
-| M2 | customer, restaurant | Customer types, satisfaction, customer lifecycle, queue and seating |
-| M3 | menu, order | Menu, order creation, food selection, preparation and pricing |
-| M4 | staff | Waiter, Chef and Cashier actions |
-
-All components interact through their defined methods.
-
----
-
-## 10. Stage 2 Testing
-
-The following tests should be completed before tagging the Stage 2 release.
-
-### Customer Behaviour Tests
-
-- [ ] Regular customers lose 8 satisfaction per unserved turn.
-- [ ] VIP customers lose 5 satisfaction per unserved turn.
-- [ ] Critic customers lose 12 satisfaction per unserved turn.
-- [ ] Satisfaction never falls below zero.
-- [ ] VIP customers receive a 10% discount.
-- [ ] Critic customers select the most expensive menu item.
-- [ ] All three customer types use the same order and payment workflow.
-
-### Game Logic Tests
-
-- [ ] Exactly six customers arrive on the scheduled turns.
-- [ ] At least one VIP and one Critic appear in the base game.
-- [ ] The Waiter performs at most one task per turn.
-- [ ] The Chef prepares at most one unit per turn.
-- [ ] Newly completed food cannot be served during the same turn.
-- [ ] Customers cannot pay during the turn they become READY_TO_PAY.
-- [ ] Revenue increases only after successful payment.
-- [ ] Tables are released after payment or abandonment.
-- [ ] Invalid actions can be retried without consuming a staff task.
-- [ ] The game runs all 18 turns.
-
-### Game Outcome Tests
-
-- [ ] A reproducible victory run is recorded.
-- [ ] A reproducible defeat run is recorded.
-- [ ] The game correctly evaluates all three victory conditions.
-- [ ] The final result correctly displays revenue and customer statistics.
-
-Testing evidence and exact input sequences should be documented before final release.
-
----
-
-## 11. Known Limitations
+## 9. Known Limitations
 
 - The game uses a command-line interface rather than a graphical interface.
 - Customer arrivals follow a fixed schedule.
@@ -515,35 +463,6 @@ Testing evidence and exact input sequences should be documented before final rel
 
 These constraints preserve the assignment's reproducible base setting.
 
----
-
-## 12. Future Development — Stage 3
-
-Stage 3 will extend the existing system with:
-
-### Host
-
-An additional staff role that can seat one customer per turn independently of the Waiter.
-
-### ComboMeal
-
-A meal combining two existing menu items, with combined preparation units and discounted pricing.
-
-### Happy Hour
-
-A temporary pricing policy offering discounts and customer satisfaction recovery.
-
-These features belong to Stage 3 and are not implemented in the current Stage 2 branch.
-
----
-
-## 13. Release Status
-
-| Stage | Status | Git Tag |
-|---|---|---|
-| Stage 1 | Released | `stage-1` |
-| Stage 2 | Implementation present; final verification pending | `stage-2` (pending) |
-| Stage 3 | Not yet implemented | `stage-3` (pending) |
 
 The final submission will also require updated UML diagrams, a design report, gameplay evidence, video timestamps and declaration forms.
 
