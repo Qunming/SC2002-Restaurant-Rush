@@ -508,6 +508,51 @@ public class ConsoleUI {
     }
 
     // -------------------------------------------------
+    // CUSTOMER ABANDONMENT ALERT
+    // -------------------------------------------------
+
+    /**
+     * Display a red abandonment message.
+     * Customer type is resolved polymorphically.
+     * Must be called before releasing the table.
+     */
+    public void showCustomerAbandonment(Customer customer) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException(
+                    "Customer cannot be null.");
+        }
+
+        if (customer.getStatus() != CustomerStatus.ABANDONED) {
+            throw new IllegalArgumentException(
+                    "Customer has not abandoned.");
+        }
+
+        String location;
+
+        if (customer.getTable() == null) {
+
+            // Customer abandoned the queue
+            location = "abandoned the queue!";
+
+        } else {
+
+            // Customer abandoned a table
+            location = "left Table "
+                    + customer.getTable().getNumber() + "!";
+        }
+
+        String message =
+                "  [ABANDONED] "
+                + customerLabel(customer)
+                + " reached 0 satisfaction and "
+                + location;
+
+        System.out.println(
+                AnsiColors.paint(message, AnsiColors.RED));
+    }
+
+    // -------------------------------------------------
     // FINAL GAME RESULT
     // -------------------------------------------------
 
