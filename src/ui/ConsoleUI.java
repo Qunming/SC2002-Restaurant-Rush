@@ -5,6 +5,7 @@ import controller.GameConfig;
 import controller.GameState;
 import customer.Customer;
 import customer.CustomerStatus;
+import feedback.Review;
 import java.util.ArrayList;
 import java.util.List;
 import order.Order;
@@ -13,12 +14,8 @@ import restaurant.Table;
 import staff.Chef;
 import staff.Waiter;
 
-// Handles the display of the restaurant game.
-// Displays customer types, order prices, statistics,
-// Happy Hour information, and game results.
-//
-// This class only displays information.
-// It does not modify the game state.
+// Handles all console output for Restaurant Rush.
+// Additional features: tips, reviews and abandonment alerts.
 
 public class ConsoleUI {
 
@@ -47,7 +44,6 @@ public class ConsoleUI {
         System.out.println(
                 AnsiColors.paint(RULE, AnsiColors.CYAN));
 
-        // Display the current game information
         showStatistics(state, false);
         showAlerts(state);
         showTables(state);
@@ -59,38 +55,29 @@ public class ConsoleUI {
     // SCOREBOARD
     // -------------------------------------------------
 
-    // Display current game statistics.
-    // false means the game is still running.
-    // true means the game has ended.
-
     private void showStatistics(
             GameState state, boolean isFinalResult) {
 
         section("SCOREBOARD");
 
-        // Check whether payment target is met
         boolean paidMet =
                 state.getPaidCustomerCount()
                 >= GameConfig.REQUIRED_PAID_CUSTOMERS;
 
-        // Check whether revenue target is met
         boolean revenueMet =
                 state.getRevenueCents()
                 >= GameConfig.REQUIRED_REVENUE_CENTS;
 
-        // Check whether satisfaction target is met
         boolean satisfactionMet =
                 state.getPaidCustomerCount() > 0
                 && state.getAveragePaidSatisfaction()
                 >= GameConfig.REQUIRED_AVERAGE_SATISFACTION;
 
-        // Format revenue in dollars
         String revenue = String.format(
                 "$%.2f / $%.2f",
                 state.getRevenueCents() / 100.0,
                 GameConfig.REQUIRED_REVENUE_CENTS / 100.0);
 
-        // Format average satisfaction
         String satisfaction =
                 state.getPaidCustomerCount() == 0
                 ? "N/A / "
@@ -116,7 +103,12 @@ public class ConsoleUI {
                 "  Avg satisfaction "
                 + goal(satisfaction, satisfactionMet));
 
-        // Display completed turns after the game ends
+        // Tips do not count towards the revenue goal
+        System.out.println(
+                "  Tips earned      "
+                + money(state.getTotalTipsCents())
+                + " (not counted towards revenue goal)");
+
         if (isFinalResult) {
 
             System.out.println(
@@ -127,7 +119,6 @@ public class ConsoleUI {
 
         } else {
 
-            // Include the current unfinished turn
             int turnsRemaining =
                     GameConfig.MAX_TURNS
                     - state.getCurrentTurn()
@@ -144,15 +135,12 @@ public class ConsoleUI {
     // ALERTS
     // -------------------------------------------------
 
-    // Display important alerts for the current turn
-
     private void showAlerts(GameState state) {
 
         section("WHAT NEEDS ATTENTION");
 
         List<String> alerts = new ArrayList<>();
 
-        // Check for orders ready to serve
         for (Order order :
                 state.getOrderManager().getOrders()) {
 
@@ -169,7 +157,6 @@ public class ConsoleUI {
             }
         }
 
-        // Check for customers with low satisfaction
         for (Customer customer :
                 state.getCustomerManager().getActiveCustomers()) {
 
@@ -187,7 +174,6 @@ public class ConsoleUI {
             }
         }
 
-        // Check whether customers are waiting
         List<Customer> waiting =
                 state.getCustomerManager()
                         .getWaitingCustomers();
@@ -214,7 +200,6 @@ public class ConsoleUI {
             }
         }
 
-        // Check whether any customer can pay
         for (Customer customer :
                 state.getCustomerManager().getActiveCustomers()) {
 
@@ -233,7 +218,6 @@ public class ConsoleUI {
             }
         }
 
-        // Display all alerts
         if (alerts.isEmpty()) {
 
             System.out.println(
@@ -251,8 +235,6 @@ public class ConsoleUI {
     // DINING ROOM
     // -------------------------------------------------
 
-    // Display table availability and occupants
-
     private void showTables(GameState state) {
 
         section("DINING ROOM");
@@ -264,7 +246,6 @@ public class ConsoleUI {
 
             if (customer == null) {
 
-                // Empty table
                 System.out.println(
                         "  Table "
                         + table.getNumber()
@@ -275,7 +256,6 @@ public class ConsoleUI {
 
             } else {
 
-                // Occupied table
                 System.out.println(
                         "  Table "
                         + table.getNumber()
@@ -293,8 +273,6 @@ public class ConsoleUI {
     // -------------------------------------------------
     // WAITING QUEUE
     // -------------------------------------------------
-
-    // Display customers waiting to be seated
 
     private void showWaitingQueue(GameState state) {
 
@@ -325,8 +303,6 @@ public class ConsoleUI {
     // ACTIVE ORDERS
     // -------------------------------------------------
 
-    // Display all active orders and their progress
-
     private void showActiveOrders(GameState state) {
 
         section("ACTIVE ORDERS");
@@ -340,13 +316,11 @@ public class ConsoleUI {
 
             OrderStatus status = order.getStatus();
 
-            // Count completed orders
             if (status == OrderStatus.PAID) {
                 paidCount++;
                 continue;
             }
 
-            // Count cancelled orders
             if (status == OrderStatus.CANCELLED) {
                 cancelledCount++;
                 continue;
@@ -354,7 +328,6 @@ public class ConsoleUI {
 
             activeCount++;
 
-            // Show remaining cooking units if needed
             String cooking =
                     (status == OrderStatus.PLACED
                     || status == OrderStatus.PREPARING)
@@ -379,7 +352,6 @@ public class ConsoleUI {
             System.out.println("  No active orders");
         }
 
-        // Display completed and cancelled order counts
         System.out.println(
                 "  Completed: "
                 + AnsiColors.paint(
@@ -396,9 +368,6 @@ public class ConsoleUI {
     // -------------------------------------------------
     // ORDER HISTORY
     // -------------------------------------------------
-
-    // Display all orders, including paid and cancelled orders.
-    // Viewing history does not consume a Waiter action.
 
     public void showHistory(GameState state) {
 
@@ -449,13 +418,47 @@ public class ConsoleUI {
         System.out.println(
                 "  (Customers who leave before ordering"
                 + " have no order record.)");
+
+        System.out.println(
+                "  Total tips earned: "
+                + money(state.getTotalTipsCents()));
+
+        showReviewHistory(state);
+    }
+
+    // -------------------------------------------------
+    // CUSTOMER REVIEW HISTORY
+    // -------------------------------------------------
+
+    private void showReviewHistory(GameState state) {
+
+        section("CUSTOMER REVIEWS");
+
+        List<Review> reviews =
+                state.getReviewManager().getReviews();
+
+        if (reviews.isEmpty()) {
+
+            System.out.println(
+                    "  No customer reviews yet.");
+
+            return;
+        }
+
+        for (Review review : reviews) {
+
+            // Reviews use normal text, not green [OK]
+            System.out.println(
+                    "  [REVIEW] " + review.toDisplayString());
+        }
+
+        System.out.println(
+                "  Total reviews: " + reviews.size());
     }
 
     // -------------------------------------------------
     // END OF TURN
     // -------------------------------------------------
-
-    // Display end-of-turn game statistics
 
     public void showEndOfTurn(GameState state) {
 
@@ -463,7 +466,6 @@ public class ConsoleUI {
                 "END OF TURN "
                 + state.getCurrentTurn());
 
-        // Show N/A if no customer has paid
         String averageSatisfaction =
                 state.getPaidCustomerCount() == 0
                 ? "N/A"
@@ -482,14 +484,17 @@ public class ConsoleUI {
                 state.getServedCustomerCount(),
                 state.getAbandonedCustomerCount(),
                 averageSatisfaction);
+
+        System.out.println(
+                "  Tips earned: "
+                + money(state.getTotalTipsCents())
+                + " | Reviews received: "
+                + state.getReviewManager().getReviewCount());
     }
 
     // -------------------------------------------------
-    // STAGE 3 - HAPPY HOUR
+    // HAPPY HOUR
     // -------------------------------------------------
-
-    // Display the current Happy Hour status
-    // The discount percentage is obtained from Order
 
     public void showHappyHourStatus(GameState state) {
 
@@ -518,11 +523,8 @@ public class ConsoleUI {
     }
 
     // -------------------------------------------------
-    // STAGE 3 - ORDER FEEDBACK
+    // ORDER PLACEMENT MESSAGE
     // -------------------------------------------------
-
-    // Display the order placed by a customer
-    // Order formatting is handled by the UI instead of GameController
 
     public void showPlacedOrder(Customer customer) {
 
@@ -541,10 +543,8 @@ public class ConsoleUI {
     }
 
     // -------------------------------------------------
-    // FEEDBACK MESSAGES
+    // GENERAL MESSAGES
     // -------------------------------------------------
-
-    // Display a successful action message
 
     public void showMessage(String message) {
 
@@ -555,8 +555,6 @@ public class ConsoleUI {
                 + message);
     }
 
-    // Display an invalid action message
-
     public void showError(String message) {
 
         System.out.println(
@@ -566,12 +564,12 @@ public class ConsoleUI {
     }
 
     // -------------------------------------------------
-    // CUSTOMER ABANDONMENT ALERT
+    // ADDITIONAL FEATURE: ABANDONMENT ALERT
     // -------------------------------------------------
 
-    // Display a red message for a newly abandoned customer.
-    // Called before the customer table is released.
-    // Works for queue customers and seated customers.
+    // Called when a customer's satisfaction reaches 0.
+    // Works for both queue and table abandonment.
+    // Must be called before releasing the table.
 
     public void showCustomerAbandonment(Customer customer) {
 
@@ -580,32 +578,32 @@ public class ConsoleUI {
                     "Customer cannot be null.");
         }
 
-        if (customer.getStatus() != CustomerStatus.ABANDONED) {
-            throw new IllegalArgumentException(
-                    "Customer has not abandoned.");
-        }
+        String message;
 
-        String location;
-
+        // Customer was waiting in the queue
         if (customer.getTable() == null) {
 
-            // Customer was waiting in the queue
-            location = "abandoned the queue!";
+            message =
+                    "  [ABANDONED] "
+                    + customer.getCustomerType()
+                    + " Customer #" + customer.getId()
+                    + " reached 0 satisfaction"
+                    + " and abandoned the queue!";
 
         } else {
 
             // Customer was seated at a table
-            location = "left Table "
+            message =
+                    "  [ABANDONED] "
+                    + customer.getCustomerType()
+                    + " Customer #" + customer.getId()
+                    + " reached 0 satisfaction"
+                    + " and left Table "
                     + customer.getTable().getNumber()
                     + "!";
         }
 
-        String message =
-                "  [ABANDONED] "
-                + customerLabel(customer)
-                + " reached 0 satisfaction and "
-                + location;
-
+        // Entire abandonment message appears red
         System.out.println(
                 AnsiColors.paint(message, AnsiColors.RED));
     }
@@ -613,8 +611,6 @@ public class ConsoleUI {
     // -------------------------------------------------
     // FINAL GAME RESULT
     // -------------------------------------------------
-
-    // Display victory or defeat at the end of the game
 
     public void showFinalResult(
             GameState state, boolean victory) {
@@ -636,7 +632,6 @@ public class ConsoleUI {
         System.out.println(
                 AnsiColors.paint(RULE, AnsiColors.CYAN));
 
-        // Display the final scoreboard
         showStatistics(state, true);
 
         System.out.println(
@@ -646,14 +641,13 @@ public class ConsoleUI {
         System.out.println(
                 "  Abandoned customers: "
                 + state.getAbandonedCustomerCount());
+
+        showReviewHistory(state);
     }
 
     // -------------------------------------------------
     // HELPER METHODS
     // -------------------------------------------------
-
-    // Display customer type and ID
-    // Uses polymorphism to obtain the correct customer type
 
     private String customerLabel(Customer customer) {
 
@@ -662,16 +656,12 @@ public class ConsoleUI {
                 + customer.getId();
     }
 
-    // Convert cents into dollars
-
     private String money(int cents) {
 
         return String.format(
                 "$%.2f",
                 cents / 100.0);
     }
-
-    // Display a section heading
 
     private void section(String heading) {
 
@@ -683,8 +673,6 @@ public class ConsoleUI {
                         AnsiColors.CYAN + AnsiColors.BOLD));
     }
 
-    // Colour achieved and incomplete goals
-
     private String goal(String text, boolean met) {
 
         return AnsiColors.paint(
@@ -693,8 +681,6 @@ public class ConsoleUI {
                     ? AnsiColors.GREEN
                     : AnsiColors.YELLOW);
     }
-
-    // Display customer status with colours
 
     private String customerStatus(CustomerStatus status) {
 
@@ -728,8 +714,6 @@ public class ConsoleUI {
         }
     }
 
-    // Display order status with colours
-
     private String orderStatus(OrderStatus status) {
 
         switch (status) {
@@ -761,8 +745,6 @@ public class ConsoleUI {
         }
     }
 
-    // Check whether any table is available
-
     private boolean hasFreeTable(GameState state) {
 
         for (Table table :
@@ -776,8 +758,6 @@ public class ConsoleUI {
         return false;
     }
 
-    // Check whether a customer is still unserved
-
     private boolean isUnserved(Customer customer) {
 
         return customer.getStatus()
@@ -787,9 +767,6 @@ public class ConsoleUI {
                 || customer.getStatus()
                     == CustomerStatus.ORDERED;
     }
-
-    // Check whether an order can be served
-    // Reuse the eligibility rule from Order.java
 
     private boolean canServe(
             Order order, int currentTurn) {

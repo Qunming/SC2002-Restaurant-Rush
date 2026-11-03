@@ -10,6 +10,7 @@ import restaurant.Table;
 
 // Collects at most one automatic payment per turn
 public class Cashier {
+
     private int lastPaymentTurn = -1;
 
     // Process the oldest customer who is ready to pay
@@ -18,12 +19,12 @@ public class Cashier {
 
         if (gameState == null) {
             throw new IllegalArgumentException(
-                "Game state cannot be null.");
+                    "Game state cannot be null.");
         }
 
         if (currentTurn != gameState.getCurrentTurn()) {
             throw new IllegalArgumentException(
-                "Payment turn does not match the game turn.");
+                    "Payment turn does not match the game turn.");
         }
 
         if (lastPaymentTurn == currentTurn) {
@@ -45,27 +46,50 @@ public class Cashier {
                 || order.getStatus() != OrderStatus.SERVED
                 || customer.getStatus() != CustomerStatus.READY_TO_PAY) {
             throw new IllegalStateException(
-                "Customer has no valid order ready for payment.");
+                    "Customer has no valid order ready for payment.");
         }
 
         // Check that the customer still occupies a valid table
         Table table = customer.getTable();
 
         if (table == null
-                || !gameState.getTableManager().getTables().contains(table)
+                || !gameState.getTableManager()
+                        .getTables().contains(table)
                 || table.getOccupant() != customer) {
             throw new IllegalStateException(
-                "Customer does not occupy a restaurant table.");
+                    "Customer does not occupy a restaurant table.");
         }
+
+        // -------------------------------------------------
+        // EXISTING STAGE 3 PAYMENT
+        // -------------------------------------------------
 
         // Record payment using the locked order price
         gameState.recordPayment(customer, order);
+
+        // Mark the order as PAID
         order.markPaid();
+
+        // -------------------------------------------------
+        // ADDITIONAL FEATURE: TIPPING
+        // -------------------------------------------------
+
+        // Calculate and record the tip after payment
+        // PERFECT food earns a $2 tip
+        // NORMAL food earns no tip
+        // Tips do not count towards the original revenue target
+        gameState.recordTipForPaidOrder(order);
+
+        // -------------------------------------------------
+        // EXISTING TABLE RELEASE
+        // -------------------------------------------------
 
         // Free the table after payment
         gameState.getTableManager().releaseTable(customer);
 
         lastPaymentTurn = currentTurn;
+
+        // Return the customer for further processing
         return customer;
     }
 }

@@ -6,7 +6,7 @@ import menu.MenuItem;
 
 public class Order {
 
-    // Single source of truth for the Stage 3 promotion.
+    // Single source of truth for the Stage 3 promotion
     public static final int HAPPY_HOUR_DISCOUNT_PERCENT = 20;
 
     private final int id;
@@ -20,14 +20,19 @@ public class Order {
     private int readyTurn = -1;
     private int servedTurn = -1;
 
-    // original constructor for orders without happy hour
+    // Additional Feature: Cooking quality
+    private CookingQuality cookingQuality = CookingQuality.NORMAL;
+    private boolean cookingQualityRecorded = false;
+
+    // Original constructor for orders without Happy Hour
     public Order(int id, Customer customer, MenuItem menuItem) {
         this(id, customer, menuItem, false);
     }
 
-    // stage 3: constructor supporting happy hour
+    // Stage 3: Constructor supporting Happy Hour
     public Order(int id, Customer customer, MenuItem menuItem,
                  boolean happyHourActive) {
+
         if (id <= 0) {
             throw new IllegalArgumentException(
                     "Order ID must be positive.");
@@ -49,18 +54,18 @@ public class Order {
                     "Discount must be between 0 and 100.");
         }
 
-        // apply vip discount first
+        // Apply VIP discount first
         long finalPrice = (
                 (long) menuItem.getPriceCents()
                 * (100 - discountPercent) + 50) / 100;
 
-        // apply happy hour discount after vip discount
+        // Apply Happy Hour discount after VIP discount
         if (happyHourActive) {
             finalPrice = (finalPrice
                     * (100 - HAPPY_HOUR_DISCOUNT_PERCENT) + 50) / 100;
         }
 
-        // lock the final price when the order is created
+        // Lock the final price when the order is created
         this.priceCents = Math.toIntExact(finalPrice);
     }
 
@@ -97,19 +102,63 @@ public class Order {
                 - completedPreparationUnits;
     }
 
-    // Reusable eligibility queries.
+    // -------------------------------------------------
+    // ADDITIONAL FEATURE: COOKING QUALITY
+    // -------------------------------------------------
+
+    // Return the cooking quality of this order
+    public CookingQuality getCookingQuality() {
+        return cookingQuality;
+    }
+
+    // Check whether cooking quality has been recorded
+    public boolean isCookingQualityRecorded() {
+        return cookingQualityRecorded;
+    }
+
+    // Record the cooking challenge result
+    // The order must have completed preparation
+    // Cooking quality can only be recorded once
+    public void recordCookingQuality(CookingQuality quality) {
+
+        if (quality == null) {
+            throw new IllegalArgumentException(
+                    "Cooking quality cannot be null.");
+        }
+
+        if (status != OrderStatus.READY) {
+            throw new IllegalStateException(
+                    "Order must be ready before recording cooking quality.");
+        }
+
+        if (cookingQualityRecorded) {
+            throw new IllegalStateException(
+                    "Cooking quality has already been recorded.");
+        }
+
+        cookingQuality = quality;
+        cookingQualityRecorded = true;
+    }
+
+    // -------------------------------------------------
+    // EXISTING ORDER LIFECYCLE
+    // -------------------------------------------------
+
+    // Check whether an order can be prepared
     public boolean canBePrepared() {
         return status == OrderStatus.PLACED
                 || status == OrderStatus.PREPARING;
     }
 
+    // Check whether an order can be served
     public boolean canBeServed(int currentTurn) {
         return status == OrderStatus.READY
                 && currentTurn > readyTurn;
     }
 
-    // chef prepares one unit per action
+    // Chef prepares one unit per action
     public void prepareOneUnit(int currentTurn) {
+
         if (currentTurn < 1) {
             throw new IllegalArgumentException(
                     "Turn number must be positive.");
@@ -130,8 +179,9 @@ public class Order {
         }
     }
 
-    // waiter serves the order
+    // Waiter serves the order
     public void markServed(int currentTurn) {
+
         if (currentTurn < 1) {
             throw new IllegalArgumentException(
                     "Turn number must be positive.");
@@ -151,8 +201,9 @@ public class Order {
         servedTurn = currentTurn;
     }
 
-    // mark order as paid
+    // Mark the order as paid
     public void markPaid() {
+
         if (status != OrderStatus.SERVED) {
             throw new IllegalStateException(
                     "Only served orders can be paid.");
@@ -161,8 +212,9 @@ public class Order {
         status = OrderStatus.PAID;
     }
 
-    // cancel an unserved order
+    // Cancel an unserved order
     public void cancel() {
+
         if (status != OrderStatus.PLACED
                 && status != OrderStatus.PREPARING
                 && status != OrderStatus.READY) {
