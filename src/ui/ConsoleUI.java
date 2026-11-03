@@ -566,6 +566,51 @@ public class ConsoleUI {
     }
 
     // -------------------------------------------------
+    // CUSTOMER ABANDONMENT ALERT
+    // -------------------------------------------------
+
+    // Display a red message for a newly abandoned customer.
+    // Called before the customer table is released.
+    // Works for queue customers and seated customers.
+
+    public void showCustomerAbandonment(Customer customer) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException(
+                    "Customer cannot be null.");
+        }
+
+        if (customer.getStatus() != CustomerStatus.ABANDONED) {
+            throw new IllegalArgumentException(
+                    "Customer has not abandoned.");
+        }
+
+        String location;
+
+        if (customer.getTable() == null) {
+
+            // Customer was waiting in the queue
+            location = "abandoned the queue!";
+
+        } else {
+
+            // Customer was seated at a table
+            location = "left Table "
+                    + customer.getTable().getNumber()
+                    + "!";
+        }
+
+        String message =
+                "  [ABANDONED] "
+                + customerLabel(customer)
+                + " reached 0 satisfaction and "
+                + location;
+
+        System.out.println(
+                AnsiColors.paint(message, AnsiColors.RED));
+    }
+
+    // -------------------------------------------------
     // FINAL GAME RESULT
     // -------------------------------------------------
 
