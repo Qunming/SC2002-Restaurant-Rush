@@ -6,6 +6,9 @@ import menu.MenuItem;
 
 public class Order {
 
+    // Single source of truth for the Stage 3 promotion.
+    public static final int HAPPY_HOUR_DISCOUNT_PERCENT = 20;
+
     private final int id;
     private final Customer customer;
     private final MenuItem menuItem;
@@ -53,7 +56,8 @@ public class Order {
 
         // apply happy hour discount after vip discount
         if (happyHourActive) {
-            finalPrice = (finalPrice * 80 + 50) / 100;
+            finalPrice = (finalPrice
+                    * (100 - HAPPY_HOUR_DISCOUNT_PERCENT) + 50) / 100;
         }
 
         // lock the final price when the order is created
@@ -93,6 +97,17 @@ public class Order {
                 - completedPreparationUnits;
     }
 
+    // Reusable eligibility queries.
+    public boolean canBePrepared() {
+        return status == OrderStatus.PLACED
+                || status == OrderStatus.PREPARING;
+    }
+
+    public boolean canBeServed(int currentTurn) {
+        return status == OrderStatus.READY
+                && currentTurn > readyTurn;
+    }
+
     // chef prepares one unit per action
     public void prepareOneUnit(int currentTurn) {
         if (currentTurn < 1) {
@@ -100,8 +115,7 @@ public class Order {
                     "Turn number must be positive.");
         }
 
-        if (status != OrderStatus.PLACED
-                && status != OrderStatus.PREPARING) {
+        if (!canBePrepared()) {
             throw new IllegalStateException(
                     "Only placed or preparing orders can be cooked.");
         }
@@ -128,7 +142,7 @@ public class Order {
                     "Only ready orders can be served.");
         }
 
-        if (currentTurn <= readyTurn) {
+        if (!canBeServed(currentTurn)) {
             throw new IllegalStateException(
                     "Order must be ready from an earlier turn.");
         }
