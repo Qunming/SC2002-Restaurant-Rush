@@ -22,6 +22,7 @@ import staff.Cashier;
 import staff.Chef;
 import staff.Host;
 import staff.Waiter;
+import ui.AnsiColors;
 import ui.ConsoleUI;
 import ui.InputHandler;
 
@@ -41,7 +42,7 @@ public class GameController {
     private int nextCustomerId = 1;
 
     // Original constructor retained for compatibility
-    // A missing challenge will produce an initialization error
+    // Missing cooking challenge will cause an error
     public GameController(GameState gameState,
                           ConsoleUI consoleUI,
                           InputHandler inputHandler,
@@ -85,7 +86,7 @@ public class GameController {
         this.cashier =
                 Objects.requireNonNull(cashier, "cashier");
 
-        // Never silently skip the cooking challenge
+        // Prevent cooking challenge from being skipped
         this.cookingChallenge = Objects.requireNonNull(
                 cookingChallenge,
                 "CookingChallenge is missing. Check Main.java.");
@@ -133,6 +134,7 @@ public class GameController {
                     createArrivingCustomer(customerId));
         }
 
+        // Stage 3: Happy Hour
         handleHappyHourChoice();
 
         if (gameState.isHappyHourActive()) {
@@ -140,6 +142,7 @@ public class GameController {
                     .applyHappyHourRecovery();
         }
 
+        // Existing turn sequence
         consoleUI.showStartOfTurn(gameState, waiter, chef);
         consoleUI.showHappyHourStatus(gameState);
 
@@ -231,7 +234,7 @@ public class GameController {
         }
     }
 
-    // Create Regular, VIP or Critic customers
+    // Create different customer types
     private Customer createArrivingCustomer(int customerId) {
 
         switch (customerId) {
@@ -329,7 +332,7 @@ public class GameController {
 
                     case 5:
 
-                        // Viewing history does not consume a Waiter action
+                        // Viewing history does not consume an action
                         consoleUI.showHistory(gameState);
 
                         break;
@@ -378,7 +381,7 @@ public class GameController {
                                 gameState.getOrderManager()
                                         .getOrderById(orderId);
 
-                        // Validate the dish timing before cooking
+                        // Validate cooking challenge timing
                         cookingChallenge.getTargetSeconds(
                                 order.getItem());
 
@@ -390,7 +393,7 @@ public class GameController {
                                 + orderId + ".");
 
                         // Additional Feature:
-                        // Run the challenge after the final prep unit
+                        // Start cooking challenge after final prep unit
                         if (order.getStatus() == OrderStatus.READY
                                 && !order.isCookingQualityRecorded()) {
 
@@ -398,14 +401,16 @@ public class GameController {
                                     "Order #" + orderId
                                     + " has finished preparation.");
 
-                            // Pass the actual menu item into the challenge
-                            // Salad: 2s, Burger: 3s, Pasta: 5s
-                            // Salad + Pasta Combo: 6s
+                            // Cooking challenge uses dish-specific timing
+                            // Salad: 2 seconds
+                            // Burger: 3 seconds
+                            // Pasta: 5 seconds
+                            // Salad + Pasta Combo: 6 seconds
                             CookingQuality quality =
                                     cookingChallenge.playChallenge(
                                             order.getItem());
 
-                            // Save the result once
+                            // Record cooking quality
                             order.recordCookingQuality(quality);
 
                             consoleUI.showMessage(
@@ -559,35 +564,44 @@ public class GameController {
                 cashier.processOldestEligiblePayment(
                         gameState, currentTurn);
 
-        // Additional Feature: Review after payment
+        // Additional Feature:
+        // Generate review after customer pays
         if (paidCustomer != null) {
             recordCustomerReview(paidCustomer);
         }
 
-        // Existing Stage 3 satisfaction loss
+        // Existing satisfaction loss and abandonment
         List<Customer> newlyAbandoned =
                 gameState.getCustomerManager()
                         .applyEndTurnSatisfactionLoss();
 
         for (Customer customer : newlyAbandoned) {
 
+            // Additional Feature:
+            // Display red abandonment alert BEFORE releasing table
+            consoleUI.showCustomerAbandonment(customer);
+
+            // Cancel unpaid order
             gameState.getOrderManager()
                     .cancelUnpaidOrderFor(customer);
 
+            // Release table
             gameState.getTableManager()
                     .releaseTable(customer);
 
+            // Update statistics
             gameState.recordAbandonment();
 
-            // Additional Feature: Review after abandonment
+            // Generate BAD review
             recordCustomerReview(customer);
         }
     }
 
     // -------------------------------------------------
-    // CUSTOMER REVIEWS
+    // ADDITIONAL FEATURE: CUSTOMER REVIEWS
     // -------------------------------------------------
 
+    // Generate a review when a customer leaves
     private void recordCustomerReview(Customer customer) {
 
         Review review;
@@ -626,7 +640,12 @@ public class GameController {
                     "Customer must leave before giving feedback.");
         }
 
-        consoleUI.showMessage(review.toDisplayString());
+        // Display customer feedback in white
+        // No green [OK] prefix
+        System.out.println(
+                AnsiColors.paint(
+                        "  [REVIEW] " + review.toDisplayString(),
+                        "\u001B[37m"));
     }
 
     // -------------------------------------------------
