@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import order.Order;
-import order.OrderStatus;
 import restaurant.Table;
 import staff.Cashier;
 import staff.Chef;
@@ -74,7 +73,7 @@ public class GameController {
         }
 
         consoleUI.showStartOfTurn(gameState, waiter, chef);
-        showHappyHourStatus();
+        consoleUI.showHappyHourStatus(gameState);
         handleHostChoice();
         handleWaiterChoice();
         handleChefChoice();
@@ -94,24 +93,6 @@ public class GameController {
             gameState.activateHappyHour();
             consoleUI.showMessage(
                     "Happy Hour activated for this turn and next turn.");
-        }
-    }
-
-    private void showHappyHourStatus() {
-        if (gameState.isHappyHourActive()) {
-            int remaining = gameState.getHappyHourTurnsRemaining();
-
-            consoleUI.showMessage("Happy Hour ACTIVE: " + remaining
-                    + " turn(s) remaining (including this turn)."
-                    + " New orders: 20% off; unserved customers: +15 satisfaction.");
-
-        } else if (gameState.hasHappyHourBeenUsed()) {
-            consoleUI.showMessage(
-                    "Happy Hour has ended and cannot be activated again.");
-
-        } else {
-            consoleUI.showMessage(
-                    "Happy Hour is available to activate on a later turn.");
         }
     }
 
@@ -205,17 +186,7 @@ public class GameController {
                         Customer customer = gameState.getCustomerManager()
                                 .getCustomerById(customerId);
 
-                        Order placed = customer.getOrder();
-
-                        consoleUI.showMessage(
-                                customer.getCustomerType()
-                                + " Customer #" + customerId
-                                + " ordered " + placed.getItem().getName()
-                                + " (Order #" + placed.getId()
-                                + ", bill "
-                                + String.format("$%.2f",
-                                        placed.getFinalPriceCents() / 100.0)
-                                + ").");
+                        consoleUI.showPlacedOrder(customer);
                         return;
                     }
 
@@ -344,8 +315,7 @@ public class GameController {
         List<Integer> ids = new ArrayList<>();
 
         for (Order order : gameState.getOrderManager().getOrders()) {
-            if (order.getStatus() == OrderStatus.READY
-                    && order.getReadyTurn() < gameState.getCurrentTurn()
+            if (order.canBeServed(gameState.getCurrentTurn())
                     && order.getCustomer().getStatus()
                             == CustomerStatus.ORDERED) {
                 ids.add(order.getId());
@@ -358,8 +328,7 @@ public class GameController {
         List<Integer> ids = new ArrayList<>();
 
         for (Order order : gameState.getOrderManager().getOrders()) {
-            if (order.getStatus() == OrderStatus.PLACED
-                    || order.getStatus() == OrderStatus.PREPARING) {
+            if (order.canBePrepared()) {
                 ids.add(order.getId());
             }
         }
