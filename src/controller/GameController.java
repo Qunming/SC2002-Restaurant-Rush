@@ -305,8 +305,8 @@ public class GameController {
     }
 
     /**
-     * Existing Stage 1 timing, cashier and
-     * abandonment logic is unchanged.
+     * Stage 2 timing and cashier logic are unchanged.
+     * Only an abandonment notification is added.
      */
     public void processEndOfTurn() {
         int currentTurn = gameState.getCurrentTurn();
@@ -321,6 +321,11 @@ public class GameController {
                         .applyEndTurnSatisfactionLoss();
 
         for (Customer customer : newlyAbandoned) {
+
+            // Display alert before releasing the customer's table.
+            // ConsoleUI handles formatting and colour.
+            consoleUI.showCustomerAbandonment(customer);
+
             gameState.getOrderManager()
                     .cancelUnpaidOrderFor(customer);
 
