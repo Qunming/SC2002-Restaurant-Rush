@@ -9,9 +9,11 @@ import customer.VIPCustomer;
 import customer.CriticCustomer;
 import feedback.FeedbackType;
 import feedback.Review;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 import order.CookingQuality;
 import order.Order;
 import order.OrderStatus;
@@ -38,7 +40,8 @@ public class GameController {
 
     private int nextCustomerId = 1;
 
-    // Old constructor retained to detect missing configuration
+    // Original constructor retained for compatibility
+    // A missing challenge will produce an initialization error
     public GameController(GameState gameState,
                           ConsoleUI consoleUI,
                           InputHandler inputHandler,
@@ -82,7 +85,7 @@ public class GameController {
         this.cashier =
                 Objects.requireNonNull(cashier, "cashier");
 
-        // Do not silently disable the cooking challenge
+        // Never silently skip the cooking challenge
         this.cookingChallenge = Objects.requireNonNull(
                 cookingChallenge,
                 "CookingChallenge is missing. Check Main.java.");
@@ -326,7 +329,7 @@ public class GameController {
 
                     case 5:
 
-                        // Viewing history does not consume an action
+                        // Viewing history does not consume a Waiter action
                         consoleUI.showHistory(gameState);
 
                         break;
@@ -371,19 +374,23 @@ public class GameController {
                         int orderId = inputHandler.readTargetId(
                                 "order", prepareIds);
 
-                        // Existing Stage 3 preparation
+                        Order order =
+                                gameState.getOrderManager()
+                                        .getOrderById(orderId);
+
+                        // Validate the dish timing before cooking
+                        cookingChallenge.getTargetSeconds(
+                                order.getItem());
+
+                        // Existing Stage 3 preparation action
                         chef.prepareOrder(orderId, gameState);
 
                         consoleUI.showMessage(
                                 "Prepared one unit of Order #"
                                 + orderId + ".");
 
-                        Order order =
-                                gameState.getOrderManager()
-                                        .getOrderById(orderId);
-
                         // Additional Feature:
-                        // Start the challenge only when cooking finishes
+                        // Run the challenge after the final prep unit
                         if (order.getStatus() == OrderStatus.READY
                                 && !order.isCookingQualityRecorded()) {
 
@@ -391,12 +398,14 @@ public class GameController {
                                     "Order #" + orderId
                                     + " has finished preparation.");
 
-                            // Always run the cooking challenge
-                            // No automatic NORMAL fallback
+                            // Pass the actual menu item into the challenge
+                            // Salad: 2s, Burger: 3s, Pasta: 5s
+                            // Salad + Pasta Combo: 6s
                             CookingQuality quality =
-                                    cookingChallenge.playChallenge();
+                                    cookingChallenge.playChallenge(
+                                            order.getItem());
 
-                            // Save the challenge result
+                            // Save the result once
                             order.recordCookingQuality(quality);
 
                             consoleUI.showMessage(
