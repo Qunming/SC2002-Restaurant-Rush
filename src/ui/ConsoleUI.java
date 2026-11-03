@@ -5,6 +5,7 @@ import controller.GameConfig;
 import controller.GameState;
 import customer.Customer;
 import customer.CustomerStatus;
+import feedback.Review;
 import java.util.ArrayList;
 import java.util.List;
 import order.Order;
@@ -16,6 +17,9 @@ import staff.Waiter;
 // Handles the display of the restaurant game.
 // Displays customer types, order prices, statistics,
 // Happy Hour information, and game results.
+//
+// Additional Feature:
+// Displays total tips and customer reviews.
 //
 // This class only displays information.
 // It does not modify the game state.
@@ -115,6 +119,13 @@ public class ConsoleUI {
         System.out.println(
                 "  Avg satisfaction "
                 + goal(satisfaction, satisfactionMet));
+
+        // Additional Feature:
+        // Tips are separate from the revenue victory target
+        System.out.println(
+                "  Tips earned      "
+                + money(state.getTotalTipsCents())
+                + " (not counted towards revenue goal)");
 
         // Display completed turns after the game ends
         if (isFinalResult) {
@@ -449,6 +460,46 @@ public class ConsoleUI {
         System.out.println(
                 "  (Customers who leave before ordering"
                 + " have no order record.)");
+
+        // Additional Feature:
+        // Display accumulated tips and customer reviews
+        System.out.println(
+                "  Total tips earned: "
+                + money(state.getTotalTipsCents()));
+
+        showReviewHistory(state);
+    }
+
+    // -------------------------------------------------
+    // ADDITIONAL FEATURE: CUSTOMER REVIEW HISTORY
+    // -------------------------------------------------
+
+    // Display every recorded customer review
+    // Does not modify or remove any reviews
+
+    private void showReviewHistory(GameState state) {
+
+        section("CUSTOMER REVIEWS");
+
+        List<Review> reviews =
+                state.getReviewManager().getReviews();
+
+        if (reviews.isEmpty()) {
+
+            System.out.println(
+                    "  No customer reviews yet.");
+
+            return;
+        }
+
+        for (Review review : reviews) {
+
+            System.out.println(
+                    "  " + review.toDisplayString());
+        }
+
+        System.out.println(
+                "  Total reviews: " + reviews.size());
     }
 
     // -------------------------------------------------
@@ -482,6 +533,14 @@ public class ConsoleUI {
                 state.getServedCustomerCount(),
                 state.getAbandonedCustomerCount(),
                 averageSatisfaction);
+
+        // Additional Feature:
+        // Keep tips separate from normal revenue
+        System.out.println(
+                "  Tips earned: "
+                + money(state.getTotalTipsCents())
+                + " | Reviews received: "
+                + state.getReviewManager().getReviewCount());
     }
 
     // -------------------------------------------------
@@ -601,6 +660,10 @@ public class ConsoleUI {
         System.out.println(
                 "  Abandoned customers: "
                 + state.getAbandonedCustomerCount());
+
+        // Additional Feature:
+        // Display all reviews at the end of the game
+        showReviewHistory(state);
     }
 
     // -------------------------------------------------
