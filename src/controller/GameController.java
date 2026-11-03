@@ -1,3 +1,4 @@
+
 package controller;
 
 import customer.Customer;
@@ -228,15 +229,22 @@ public class GameController {
         return ids;
     }
 
-    /** Existing Stage 1 timing, cashier and abandonment logic is unchanged. */
+    // Existing Stage 1 timing, cashier and abandonment logic is preserved.
     public void processEndOfTurn() {
         int currentTurn = gameState.getCurrentTurn();
+
         gameState.getCustomerManager().advanceEating(currentTurn);
         cashier.processOldestEligiblePayment(gameState, currentTurn);
 
         List<Customer> newlyAbandoned = gameState.getCustomerManager()
                 .applyEndTurnSatisfactionLoss();
+
         for (Customer customer : newlyAbandoned) {
+
+            // Display the abandonment message before releasing the table.
+            // The UI handles the red colour and queue/table distinction.
+            consoleUI.showCustomerAbandonment(customer);
+
             gameState.getOrderManager().cancelUnpaidOrderFor(customer);
             gameState.getTableManager().releaseTable(customer);
             gameState.recordAbandonment();
