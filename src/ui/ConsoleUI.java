@@ -53,6 +53,9 @@ public class ConsoleUI {
         showTables(state);
         showWaitingQueue(state);
         showActiveOrders(state);
+
+        // Display available staff actions before the turn begins
+        showAvailableActions(state);
     }
 
     // -------------------------------------------------
@@ -391,6 +394,113 @@ public class ConsoleUI {
                         AnsiColors.RED)
                 + " cancelled"
                 + "  (history available in Waiter menu)");
+    }
+
+    // -------------------------------------------------
+    // AVAILABLE STAFF ACTIONS
+    // -------------------------------------------------
+
+    // Display tasks available at the start of the turn.
+    // This is only a summary and does not perform any action.
+
+    private void showAvailableActions(GameState state) {
+
+        section("AVAILABLE STAFF ACTIONS");
+
+        List<Integer> seatIds = new ArrayList<>();
+        List<Integer> takeOrderIds = new ArrayList<>();
+        List<Integer> serveOrderIds = new ArrayList<>();
+        List<Integer> prepareOrderIds = new ArrayList<>();
+
+        // Find customers who can be seated
+        if (hasFreeTable(state)) {
+
+            for (Customer customer :
+                    state.getCustomerManager().getWaitingCustomers()) {
+
+                seatIds.add(customer.getId());
+            }
+        }
+
+        // Find seated customers who can place an order
+        for (Customer customer :
+                state.getCustomerManager().getActiveCustomers()) {
+
+            if (customer.getStatus() == CustomerStatus.SEATED) {
+                takeOrderIds.add(customer.getId());
+            }
+        }
+
+        // Find orders that can be served or prepared
+        for (Order order :
+                state.getOrderManager().getOrders()) {
+
+            if (order.canBeServed(state.getCurrentTurn())
+                    && order.getCustomer().getStatus()
+                            == CustomerStatus.ORDERED) {
+
+                serveOrderIds.add(order.getId());
+            }
+
+            if (order.canBePrepared()) {
+                prepareOrderIds.add(order.getId());
+            }
+        }
+
+        // Host can seat a customer or wait
+        if (seatIds.isEmpty()) {
+
+            System.out.println(
+                    "  Host   : Wait only");
+
+        } else {
+
+            System.out.println(
+                    "  Host   : Seat customer "
+                    + seatIds + " | Wait");
+        }
+
+        // Waiter can perform one of the available tasks
+        List<String> waiterActions = new ArrayList<>();
+
+        if (!seatIds.isEmpty()) {
+            waiterActions.add(
+                    "Seat customer " + seatIds);
+        }
+
+        if (!takeOrderIds.isEmpty()) {
+            waiterActions.add(
+                    "Take order from " + takeOrderIds);
+        }
+
+        if (!serveOrderIds.isEmpty()) {
+            waiterActions.add(
+                    "Serve order " + serveOrderIds);
+        }
+
+        waiterActions.add("Wait");
+
+        System.out.println(
+                "  Waiter : "
+                + String.join(" | ", waiterActions));
+
+        // Chef can prepare an eligible order or wait
+        if (prepareOrderIds.isEmpty()) {
+
+            System.out.println(
+                    "  Chef   : Wait only");
+
+        } else {
+
+            System.out.println(
+                    "  Chef   : Prepare order "
+                    + prepareOrderIds + " | Wait");
+        }
+
+        // Host actions occur before Waiter actions
+        System.out.println(
+                "  Note: Available tasks may change"
+                + " after the Host acts.");
     }
 
     // -------------------------------------------------
