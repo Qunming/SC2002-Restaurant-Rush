@@ -1,6 +1,6 @@
 # SC2002 Restaurant Rush
 
-**NTU SC2002 — Object-Oriented Design & Programming**  
+**SC2002 — Object-Oriented Design & Programming**  
 **GitHub:** https://github.com/Qunming/SC2002-Restaurant-Rush
 
 Restaurant Rush is an offline, turn-based Java restaurant management game. The manager prioritises seating, orders, food preparation and service under limited staff capacity, aiming to meet revenue, paid-customer and satisfaction targets within 18 turns.
