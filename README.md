@@ -12,13 +12,13 @@ Stage 2 extends the original Stage 1 implementation by introducing different cus
 Repository:
 https://github.com/Qunming/SC2002-Restaurant-Rush
 
-Development branch:
-`stage-2-dev`
+Release reference:
+`stage-2`
 
 Completed releases:
 - Stage 1: Basic Restaurant Operation (`stage-1`)
-- Stage 2: Customer Behaviour Extension (in development)
-- Stage 3: New Role and Menu Policy (not implemented yet)
+- Stage 2: Customer Behaviour Extension (`stage-2`, released)
+- Stage 3: New Role and Menu Policy (separate release, `stage-3`; not present in this tag)
 
 Each stage builds upon the previous implementation while preserving existing functionality.
 
@@ -48,7 +48,7 @@ cd SC2002-Restaurant-Rush
 Switch to Stage 2:
 
 ```bash
-git switch stage-2-dev
+git switch --detach stage-2
 ```
 
 ### Option 1: Compile Using the Existing Script
@@ -412,6 +412,7 @@ Stage 2 extends the existing Stage 1 implementation without replacing the origin
 | `MenuItem.java` | Refined validation, formatting and string representation |
 | `GameState.java` | Refined payment validation and code readability |
 | `Cashier.java` | Strengthened payment validation while preserving the original payment workflow |
+| `README.md` | Describes the Stage 2 customer behaviour extension and its release evidence |
 
 ### Unchanged Core Functionality
 
@@ -442,13 +443,13 @@ The original customer lifecycle and staff workflow can therefore be reused.
 Stage 1 release:
 https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-1
 
-Stage 2 development:
-https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-2-dev
+Stage 2 release:
+https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-2
 
 Compare Stage 1 and Stage 2:
-https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-1...stage-2-dev
+https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-1...stage-2
 
-The `stage-2` release tag should be created after Stage 2 testing is completed.
+The `stage-2` release is tagged and has been independently compiled and tested. The comparison is between the published stage tags.
 
 
 ## 9. Known Limitations
@@ -466,6 +467,31 @@ These constraints preserve the assignment's reproducible base setting.
 
 The final submission will also require updated UML diagrams, a design report, gameplay evidence, video timestamps and declaration forms.
 
-Video demonstration timestamps: To be added after recording.
+The final submission README on `main` will receive video timestamps after the demonstration is recorded.
 
-Stage 2 must be compiled and tested independently before creating its release tag.
+Stage 2 has been independently compiled and tested against the published release tag.
+
+## 10. Release verification and reproducibility
+
+**Released tag:** `stage-2` (this is not the historical `stage-2-dev` branch). The compiled release contains Stage 1 functionality plus polymorphic `RegularCustomer`, `VIPCustomer` and `CriticCustomer` implementations; it intentionally excludes Stage 3 features.
+
+| Scenario | Paid | Food revenue | Average paid satisfaction | Outcome |
+|---|---:|---:|---:|---|
+| Full 18-turn victory | 4 | $58.50 | 75.5 | VICTORY |
+| Full 18-turn no-service queue abandonment | 0 | $0.00 | N/A | DEFEAT |
+| Seated abandonment regression | 0 | $0.00 | N/A | DEFEAT |
+
+**18-turn action tables and recorded results:** https://github.com/Qunming/SC2002-Restaurant-Rush/blob/main/docs/test-evidence/ReproducibleGameplayTests.md
+
+### Clean rebuild in Windows PowerShell
+
+```powershell
+git switch --detach stage-2
+if (Test-Path build) { Remove-Item build -Recurse -Force }
+javac --release 21 -encoding UTF-8 -sourcepath src -d build src/app/Main.java
+java -cp build app.Main
+```
+
+**Stage 1 -> Stage 2 compare:** https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-1...stage-2
+
+The file table in Section 8 describes new and modified classes. No original Stage 1 Java source files were deleted in this transition. The final submission README on `main` also provides the complete transition comparison, including README changes.
