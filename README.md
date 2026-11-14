@@ -11,7 +11,7 @@ Stage 3 extends the existing Stage 2 implementation by introducing three feature
 **GitHub Repository:**  
 https://github.com/Qunming/SC2002-Restaurant-Rush
 
-**Development Branch:** `main`
+**Release tag:** `stage-3` (a fixed release snapshot; `main` can have newer changes)
 
 ### Stage Releases
 
@@ -43,16 +43,17 @@ If the repository is already cloned, open the existing project folder.
 
 ### Compile and Run Stage 3
 
-Switch to the main branch:
+Switch to the `stage-3` release tag:
 
 ```powershell
-git switch main
+git switch --detach stage-3
 ```
 
-Compile and run:
+Clean the previous build, compile and run:
 
 ```powershell
-javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
+if (Test-Path build) { Remove-Item build -Recurse -Force }
+javac --release 21 -encoding UTF-8 -sourcepath src -d build src\app\Main.java
 java -cp build app.Main
 ```
 
@@ -62,9 +63,11 @@ Compiled `.class` files are generated inside the `build` directory.
 
 Stage 1 and Stage 2 can be accessed using their respective Git tags.
 
-For example, to run Stage 2:
+For example, to run Stage 2 (switch the tag first and clean old class files):
 
 ```powershell
+git switch --detach stage-2
+if (Test-Path build) { Remove-Item build -Recurse -Force }
 javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
 java -cp build app.Main
 ```
@@ -549,6 +552,8 @@ Stage 3 extends Stage 2 rather than replacing existing game.
 | `src/order/Order.java` | Supports Happy Hour discount calculation |
 | `src/order/OrderManager.java` | Accepts Happy Hour status during order creation |
 | `src/staff/Waiter.java` | Passes Happy Hour status into order creation |
+| `src/ui/ConsoleUI.java` | Displays Host decisions, Happy Hour duration and bills |
+| `README.md` | Documents the completed Stage 3 release and its changes |
 
 ### Unchanged Core Functionality
 
@@ -570,7 +575,23 @@ The following features are retained from earlier stages:
 
 These decisions preserve reproducible gameplay and the required base-game configuration.
 
-The `stage-3` tag should identify the completed Stage 3 implementation together with its release documentation.
+The `stage-3` tag identifies the compulsory Stage 3 implementation. The optional enhanced release is maintained in a separate tag.
 
 Each stage must remain independently runnable.
 
+## 10. Release verification and reproducibility
+
+This is the **compulsory Stage 3** tag, comprising Host, ComboMeal and Happy Hour on top of the Stage 2 customer types. It does not include the optional cooking challenge, customer reviews or tips.
+
+| Scenario | Paid | Food revenue | Average paid satisfaction | Outcome |
+|---|---:|---:|---:|---|
+| Full 18-turn victory (Happy Hour starts Turn 10) | 5 | $68.94 | 86.2 | VICTORY |
+| Full 18-turn no-service defeat | 0 | $0.00 | N/A | DEFEAT |
+
+During the recorded victory, the Critic ordered the Salad + Pasta Combo at **$19.44** during Happy Hour and the Chef completed its three preparation units on separate turns. Six customers were served and five paid within 18 turns. This is evidence for the compulsory Stage 3 release, not the optional feature release.
+
+**18-turn action tables and recorded results:** https://github.com/Qunming/SC2002-Restaurant-Rush/blob/main/docs/test-evidence/ReproducibleGameplayTests.md
+
+**Stage 2 -> Stage 3 comparison:** https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-2...stage-3
+
+Section 9 enumerates the added and modified Java classes, including the updated ConsoleUI and README. No source files were deleted in this transition. Separate edge-case tests for VIP + Happy Hour stacking and recovery remain recommended.
