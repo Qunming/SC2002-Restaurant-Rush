@@ -1,0 +1,785 @@
+﻿
+================================================================
+ RESTAURANT RUSH  |  TURN 1 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  18 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 1 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 1]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 1 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 2 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  17 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 1 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 92
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 2]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 2 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 3 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  16 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 1 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 84
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 3]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 3 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 4 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  15 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 2 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 76
+  VIP Customer #2 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 4]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 4 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 5 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  14 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 2 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 68
+  VIP Customer #2 | Satisfaction 95
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 5]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 5 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 6 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  13 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 2 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 60
+  VIP Customer #2 | Satisfaction 90
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 6]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 6 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 7 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  12 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 3 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 52
+  VIP Customer #2 | Satisfaction 85
+  Regular Customer #3 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 7]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 7 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 8 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  11 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 3 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 44
+  VIP Customer #2 | Satisfaction 80
+  Regular Customer #3 | Satisfaction 92
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 8]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 8 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 9 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  10 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 3 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 36
+  VIP Customer #2 | Satisfaction 75
+  Regular Customer #3 | Satisfaction 84
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 9]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 9 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 10 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  9 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #1 (28)
+  * TABLE AVAILABLE - 4 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 28
+  VIP Customer #2 | Satisfaction 70
+  Regular Customer #3 | Satisfaction 76
+  Critic Customer #4 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 10]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 10 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 11 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  8 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #1 (20)
+  * TABLE AVAILABLE - 4 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 20
+  VIP Customer #2 | Satisfaction 65
+  Regular Customer #3 | Satisfaction 68
+  Critic Customer #4 | Satisfaction 88
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 11]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 11 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 12 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  7 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #1 (12)
+  * TABLE AVAILABLE - 4 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 12
+  VIP Customer #2 | Satisfaction 60
+  Regular Customer #3 | Satisfaction 60
+  Critic Customer #4 | Satisfaction 76
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 12]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 0 | Avg satisfaction N/A | Turns used 12 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 13 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  6 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #1 (4)
+  * TABLE AVAILABLE - 5 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  Regular Customer #1 | Satisfaction 4
+  VIP Customer #2 | Satisfaction 55
+  Regular Customer #3 | Satisfaction 52
+  Critic Customer #4 | Satisfaction 64
+  Regular Customer #5 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+  [ABANDONED] Regular Customer #1 reached 0 satisfaction and abandoned the queue!
+
+[END OF TURN 13]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 1 | Avg satisfaction N/A | Turns used 13 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 14 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  5 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 4 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  VIP Customer #2 | Satisfaction 50
+  Regular Customer #3 | Satisfaction 44
+  Critic Customer #4 | Satisfaction 52
+  Regular Customer #5 | Satisfaction 92
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 14]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 1 | Avg satisfaction N/A | Turns used 14 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 15 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  4 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * TABLE AVAILABLE - 4 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  VIP Customer #2 | Satisfaction 45
+  Regular Customer #3 | Satisfaction 36
+  Critic Customer #4 | Satisfaction 40
+  Regular Customer #5 | Satisfaction 84
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 15]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 1 | Avg satisfaction N/A | Turns used 15 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 16 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  3 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #3 (28)
+  * LOW SATISFACTION - Critic Customer #4 (28)
+  * TABLE AVAILABLE - 5 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  VIP Customer #2 | Satisfaction 40
+  Regular Customer #3 | Satisfaction 28
+  Critic Customer #4 | Satisfaction 28
+  Regular Customer #5 | Satisfaction 76
+  Regular Customer #6 | Satisfaction 100
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 16]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 1 | Avg satisfaction N/A | Turns used 16 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 17 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  2 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - Regular Customer #3 (20)
+  * LOW SATISFACTION - Critic Customer #4 (16)
+  * TABLE AVAILABLE - 5 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  VIP Customer #2 | Satisfaction 35
+  Regular Customer #3 | Satisfaction 20
+  Critic Customer #4 | Satisfaction 16
+  Regular Customer #5 | Satisfaction 68
+  Regular Customer #6 | Satisfaction 92
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+
+[END OF TURN 17]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 1 | Avg satisfaction N/A | Turns used 17 / 18
+
+================================================================
+ RESTAURANT RUSH  |  TURN 18 / 18
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns remaining  1 (including this turn)
+
+[WHAT NEEDS ATTENTION]
+  * LOW SATISFACTION - VIP Customer #2 (30)
+  * LOW SATISFACTION - Regular Customer #3 (12)
+  * LOW SATISFACTION - Critic Customer #4 (4)
+  * TABLE AVAILABLE - 5 customer(s) waiting
+
+[DINING ROOM]
+  Table 1  AVAILABLE
+  Table 2  AVAILABLE
+
+[WAITING QUEUE]
+  VIP Customer #2 | Satisfaction 30
+  Regular Customer #3 | Satisfaction 12
+  Critic Customer #4 | Satisfaction 4
+  Regular Customer #5 | Satisfaction 60
+  Regular Customer #6 | Satisfaction 84
+
+[ACTIVE ORDERS]
+  No active orders
+  Completed: 0 paid | 0 cancelled  (history available in Waiter menu)
+
+========== WAITER ACTION ==========
+  1. Seat customer
+  2. Take order
+  3. Serve order
+  4. Wait
+  5. View order history (does not consume a turn)
+Choose a Waiter action (1-5):   [OK] Waiter waits this turn.
+
+========== CHEF ACTION ==========
+  1. Prepare order
+  2. Wait
+Choose a Chef action (1-2):   [OK] Chef waits this turn.
+  [ABANDONED] Critic Customer #4 reached 0 satisfaction and abandoned the queue!
+
+[END OF TURN 18]
+  Revenue $0.00 | Paid 0 | Served 0 | Abandoned 2 | Avg satisfaction N/A | Turns used 18 / 18
+
+================================================================
+                     DEFEAT!
+================================================================
+
+[SCOREBOARD]
+  Revenue          $0.00 / $45.00
+  Paid customers   0 / 4
+  Avg satisfaction N/A / 60
+  Turns completed  18 / 18
+  Served customers: 0
+  Abandoned customers: 2
