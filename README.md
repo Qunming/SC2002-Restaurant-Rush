@@ -1,17 +1,17 @@
-# SC2002 Restaurant Rush — Stage 3
+# SC2002 Restaurant Rush — Optional Enhanced Stage 3
 
 A command-line, turn-based restaurant management game developed in Java for the SC2002 Object-Oriented Design & Programming group assignment.
 
 The player acts as a restaurant manager, making decisions about seating, order handling, food preparation, customer satisfaction and revenue.
 
-Stage 3 extends the existing Stage 2 implementation by introducing three features: **Host**, **ComboMeal**, and **Happy Hour**. All core Stage 1 and Stage 2 gameplay rules are retained.
+This optional enhanced release contains all compulsory Stage 3 features (**Host**, **ComboMeal**, **Happy Hour**) and additionally introduces cooking quality, customer feedback and tips. The compulsory `stage-3` tag remains a separate, independently playable release.
 
 ## 1. Repository Information
 
 **GitHub Repository:**  
 https://github.com/Qunming/SC2002-Restaurant-Rush
 
-**Development Branch:** `main`
+**Release tag:** `stage-3-with-additional-features` (a fixed release snapshot; `main` can have newer changes)
 
 ### Stage Releases
 
@@ -20,6 +20,7 @@ https://github.com/Qunming/SC2002-Restaurant-Rush
 | Stage 1 | Basic Restaurant Operation | `stage-1` | Tagged |
 | Stage 2 | Customer Behaviour Extension | `stage-2` | Tagged |
 | Stage 3 | Host, ComboMeal and Happy Hour | `stage-3` | Tagged |
+| Optional enhanced Stage 3 | Cooking quality, reviews and tips | `stage-3-with-additional-features` | Tagged |
 
 Each stage builds upon the previous implementation while preserving its existing functionality.
 
@@ -43,16 +44,17 @@ If the repository is already cloned, open the existing project folder.
 
 ### Compile and Run Stage 3
 
-Switch to the main branch:
+Switch to the `stage-3-with-additional-features` release tag:
 
 ```powershell
-git switch main
+git switch --detach stage-3-with-additional-features
 ```
 
-Compile and run:
+Clean the previous build, compile and run:
 
 ```powershell
-javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
+if (Test-Path build) { Remove-Item build -Recurse -Force }
+javac --release 21 -encoding UTF-8 -sourcepath src -d build src\app\Main.java
 java -cp build app.Main
 ```
 
@@ -62,9 +64,11 @@ Compiled `.class` files are generated inside the `build` directory.
 
 Stage 1 and Stage 2 can be accessed using their respective Git tags.
 
-For example, to run Stage 2:
+For example, to run Stage 2 (switch the tag first and clean old class files):
 
 ```powershell
+git switch --detach stage-2
+if (Test-Path build) { Remove-Item build -Recurse -Force }
 javac -encoding UTF-8 -sourcepath src -d build src\app\Main.java
 java -cp build app.Main
 ```
@@ -523,7 +527,7 @@ Happy Hour recovery reuses customer satisfaction methods.
 
 The existing customer lifecycle and payment mechanisms remain unchanged.
 
-## 9. Stage 2 to Stage 3 Changes
+## 9. Inherited compulsory Stage 2 to Stage 3 changes
 
 Stage 3 extends Stage 2 rather than replacing existing game.
 
@@ -549,6 +553,8 @@ Stage 3 extends Stage 2 rather than replacing existing game.
 | `src/order/Order.java` | Supports Happy Hour discount calculation |
 | `src/order/OrderManager.java` | Accepts Happy Hour status during order creation |
 | `src/staff/Waiter.java` | Passes Happy Hour status into order creation |
+| `src/ui/ConsoleUI.java` | Displays Host decisions, Happy Hour duration and bills |
+| `README.md` | Documents the completed Stage 3 release and its changes |
 
 ### Unchanged Core Functionality
 
@@ -570,7 +576,64 @@ The following features are retained from earlier stages:
 
 These decisions preserve reproducible gameplay and the required base-game configuration.
 
-The `stage-3` tag should identify the completed Stage 3 implementation together with its release documentation.
+The `stage-3` tag identifies the compulsory Stage 3 implementation. The optional enhanced release is maintained in a separate tag.
 
 Each stage must remain independently runnable.
 
+## 10. Optional additional features (this tag only)
+
+**Status:** This is an **optional enhanced release**, not the compulsory `stage-3` tag. All compulsory features and the 18-turn rules remain present. These extensions affect the gameplay experience but **do not change** food revenue, menu prices, the mandatory satisfaction rules or the victory/defeat targets.
+
+### Cooking quality and timing
+
+- During Chef preparation, the player may complete a keyboard timing challenge.
+- Time targets: Salad **2 seconds**, Burger **3 seconds**, Pasta **5 seconds**, ComboMeal **6 seconds**. Timing within **±0.5 seconds** is `PERFECT`; otherwise it is `NORMAL`.
+- Pasta still needs two Chef preparation units; the ComboMeal still needs three. The timing challenge does not replace these staff limits.
+- Customers still eat, become ready to pay, and pay through the original lifecycle.
+
+### Customer reviews and tips
+
+- Generate an in-game customer comment when a customer pays or abandons; reviews do not consume staff actions.
+- A paid `PERFECT` dish may generate a tip: Regular **$2.00**, VIP **$3.00**, Critic **$5.00**. `NORMAL` food earns no tip.
+- Tips are reported separately from mandatory food revenue and do not affect win/loss calculations. Different customer types have different feedback expectations.
+
+### New source files relative to compulsory `stage-3`
+
+| File | Purpose |
+|---|---|
+| `src/challenge/CookingChallenge.java` | Interactive cooking-timing challenge |
+| `src/feedback/FeedbackType.java` | Feedback-category enum |
+| `src/feedback/Review.java` | Review record |
+| `src/feedback/ReviewManager.java` | Review management and duplicate prevention |
+| `src/order/CookingQuality.java` | Cooking-quality enum |
+| `src/policy/TipCalculator.java` | Tip calculations kept separate from food revenue |
+
+### Existing source files changed by the optional extension
+
+| File | Reason |
+|---|---|
+| `src/app/Main.java` | Supplies the shared Scanner and cooking challenge |
+| `src/controller/GameController.java` | Orchestrates cooking challenge and feedback during gameplay |
+| `src/controller/GameState.java` | Tracks reviews and tip totals |
+| `src/customer/Customer.java` | Supports default feedback behaviour |
+| `src/customer/VIPCustomer.java` | Customizes VIP comments and expectations |
+| `src/customer/CriticCustomer.java` | Customizes Critic comments and expectations |
+| `src/order/Order.java` | Records cooking quality |
+| `src/staff/Cashier.java` | Records tip when payment is processed |
+| `src/ui/ConsoleUI.java` | Displays cooking results, comments and tips |
+| `README.md` | Documents the optional extension and release instructions |
+
+**Deleted source files:** None.
+
+**Comparison:** https://github.com/Qunming/SC2002-Restaurant-Rush/compare/stage-3...stage-3-with-additional-features
+
+### Build and play this exact release
+
+```powershell
+git switch --detach stage-3-with-additional-features
+if (Test-Path build) { Remove-Item build -Recurse -Force }
+javac --release 21 -encoding UTF-8 -sourcepath src -d build src/app/Main.java
+java -cp build app.Main
+```
+
+Use an interactive terminal for the cooking-timing challenge; a fixed stream of numeric menu inputs cannot reproduce real-time keypress timing. The compulsory Stage 1–3 reproducible gameplay tables belong to their separate release tags: https://github.com/Qunming/SC2002-Restaurant-Rush/blob/main/docs/test-evidence/ReproducibleGameplayTests.md
