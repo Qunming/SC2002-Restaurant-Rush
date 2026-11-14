@@ -67,13 +67,31 @@ The average uses satisfaction when payment is collected; when nobody has paid, t
 
 No Stage 2 or Stage 3 features are included in this release.
 
-## Testing and release
+## Release verification and reproducibility
 
-Before creating the `stage-1` Git tag:
+The Stage 1 tag is the independently runnable **basic restaurant** release. It contains no VIP, Critic, Host, ComboMeal, Happy Hour or optional cooking-quality features.
 
-1. Run the game for all 18 turns and record one victory run and one defeat run with exact input choices.
-2. Verify invalid choices can be retried without consuming the staff action.
-3. Verify cooking, serving and payment timing; ensure that customer and order states remain consistent.
-4. Compile and run from a clean checkout of the tagged commit.
+**Repository:** https://github.com/Qunming/SC2002-Restaurant-Rush
 
-The `stage-1` tag should point to the verified, independently runnable Stage 1 release. Do not add VIP, Critic, Host, ComboMeal or Happy Hour features to that tag.
+### Verified runs (actual Stage 1 tag)
+
+| Scenario | Paid | Food revenue | Average paid satisfaction | Outcome |
+|---|---:|---:|---:|---|
+| Full 18-turn victory | 4 | $51.00 | 78.0 | VICTORY |
+| Full 18-turn no-service queue abandonment | 0 | $0.00 | N/A | DEFEAT |
+| Seated abandonment regression | 0 | $0.00 | N/A | DEFEAT |
+
+The queue and table tests confirm location-specific abandonment alerts. Invalid staff choices must be retried without consuming the staff action; this remains a separate manual validation item.
+
+**18-turn action tables and recorded results:** https://github.com/Qunming/SC2002-Restaurant-Rush/blob/main/docs/test-evidence/ReproducibleGameplayTests.md
+
+### Verify this historical release in Windows PowerShell
+
+```powershell
+git switch --detach stage-1
+if (Test-Path build) { Remove-Item build -Recurse -Force }
+javac --release 21 -encoding UTF-8 -sourcepath src -d build src/app/Main.java
+java -cp build app.Main
+```
+
+The final submission README on `main` provides the required Stage 1 to Stage 2 and Stage 2 to Stage 3 comparison tables and links. Stage 1 has no preceding release to compare against.
