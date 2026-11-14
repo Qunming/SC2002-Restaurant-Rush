@@ -220,3 +220,15 @@ The changes below were verified by comparing **source-file snapshots of the actu
 | `src/ui/ConsoleUI.java` | Displays additional quality, feedback and tip information |
 
 **Deleted:** None. `README.md` was unchanged in the tagged source snapshot during this optional transition; this submission README documents the fourth release on `main`.
+
+## 8. Reproducible Gameplay Test Evidence
+
+The three compulsory stages were independently compiled
+and tested against their Git release tags.
+
+Full 18-turn victory and defeat scenarios, including
+action tables and verified final scoreboards, are available
+in [Reproducible Gameplay Tests](docs/test-evidence/ReproducibleGameplayTests.md).
+
+Additional queue- and table-abandonment test logs
+are available in `docs/test-evidence/`.
