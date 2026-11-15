@@ -870,6 +870,8 @@ The optional enhanced release includes real-time cooking challenges requiring in
 
 The recorded group presentation covers the game overview, gameplay demonstration, victory and defeat conditions, compulsory stage-by-stage class diagrams, design trade-offs, the sequence diagram, and individual reflections.
 
+**Video link:** https://youtu.be/qXQ5J2Mu3CM
+
 **Video duration:** 15 minutes 1 second (15:01)
 
 ### 10.1 Presentation Timeline
