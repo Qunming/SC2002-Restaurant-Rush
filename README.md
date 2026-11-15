@@ -868,33 +868,49 @@ The optional enhanced release includes real-time cooking challenges requiring in
 
 ## 10. Video Demonstration and Timestamps
 
-The demonstration will focus on game operation, object-oriented design, SOLID principles and changes between the three compulsory stages.
+The recorded group presentation covers the game overview, gameplay demonstration, victory and defeat conditions, compulsory stage-by-stage class diagrams, design trade-offs, the sequence diagram, and individual reflections.
 
-**Video link:** Pending recording/upload.
+**Video duration:** 15 minutes 1 second (15:01)
 
-**Video duration:** To be finalised.
+### 10.1 Presentation Timeline
 
-Timestamps will be added after recording.
+| No. | Presenter | Timestamp | Presentation Content |
+|---|---|---|---|
+| 1 | Phoebe | 00:00 – 01:20 | Game overview and the three development stages |
+| 2 | Glen | 01:21 – 03:15 | Gameplay demonstration and key outcomes |
+| 3 | Swee Kiak | 03:16 – 05:24 | Victory/defeat conditions and additional gameplay features |
+| 4 | Kim ChaeHui | 05:25 – 09:00 | Stage 1, Stage 2 and Stage 3 UML class diagrams |
+| 5 | Qunming | 09:01 – 11:48 | Design trade-offs and UML sequence diagram |
+| 6 | All Members | 11:49 – 15:01 | Individual contributions and project reflections |
 
-| No. | Demonstration Segment | Timestamp |
-|---|---|---|
-| 1 | Launching the game | Pending |
-| 2 | Meaningful manager decisions and staff constraints | Pending |
-| 3 | READY → SERVED → payment lifecycle | Pending |
-| 4 | VIP or Critic customer behaviour | Pending |
-| 5 | Compulsory Stage 3 features | Pending |
-| 6 | Victory and defeat demonstrations | Pending |
-| 7 | OOP/SOLID design, UML diagrams and stage change maps | Pending |
+### 10.2 OODP and SOLID Design Evidence
 
-The design explanation will emphasise:
+The presentation focuses on how Object-Oriented Design and Programming (OODP) concepts and SOLID principles support the system's evolution across the three compulsory stages.
 
-- Why particular classes were introduced or modified
-- Which classes remained unchanged between stages
-- How inheritance and polymorphism support customer extensions
-- How existing classes such as `Chef`, `Cashier` and `TableManager` were reused
-- How SOLID principles influenced design decisions and trade-offs
+The main design considerations include:
 
-The video complements the source code, change maps, reproducible gameplay evidence and PDF report.
+- **Encapsulation:** Protecting customer, order and game-state data through controlled methods.
+- **Inheritance and Polymorphism:** Introducing Regular, VIP and Critic customers through the common `Customer` superclass.
+- **Single Responsibility Principle:** Separating staff actions, order management, table management and game control.
+- **Open/Closed Principle:** Reusing existing domain components when introducing new customers, Host and ComboMeal, while acknowledging necessary integration changes.
+- **Design Extensibility:** Comparing added, modified and unchanged classes across the three compulsory stages.
+- **Design Trade-offs:** Discussing why certain design decisions were made and identifying limitations.
+- **UML Diagrams:** Showing structural relationships and object interactions through class and sequence diagrams.
+
+The detailed class change maps and design explanations are documented in Sections 7 and 8 of this README and in the accompanying written report.
+
+### 10.3 Supporting Evidence
+
+The presentation is supported by the following project resources:
+
+- [Stage 1 Release](https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-1)
+- [Stage 2 Release](https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-2)
+- [Stage 3 Release](https://github.com/Qunming/SC2002-Restaurant-Rush/tree/stage-3)
+- [Reproducible Gameplay Tests](docs/test-evidence/ReproducibleGameplayTests.md)
+
+The timestamps above identify presenter sections. The gameplay demonstration begins at 01:21, while the class-diagram and design discussions begin at 05:25 and 09:01, respectively.
+
+The recording complements the source code, UML diagrams, change maps, reproducible gameplay evidence and PDF report.
 
 ---
 
